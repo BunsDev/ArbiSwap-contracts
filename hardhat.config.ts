@@ -4,6 +4,7 @@ import type { HardhatUserConfig } from "hardhat/config";
 import type { NetworkUserConfig } from "hardhat/types";
 import { resolve } from "path";
 
+import { default as api_keys } from "./api_keys.json";
 import "./tasks/accounts";
 import "./tasks/deploy";
 
@@ -16,35 +17,45 @@ if (!mnemonic) {
   throw new Error("Please set your MNEMONIC in a .env file");
 }
 
-const infuraApiKey: string | undefined = process.env.INFURA_API_KEY;
-if (!infuraApiKey) {
-  throw new Error("Please set your INFURA_API_KEY in a .env file");
-}
-
 const chainIds = {
   "arbitrum-mainnet": 42161,
-  avalanche: 43114,
-  bsc: 56,
   hardhat: 31337,
-  mainnet: 1,
+  "eth-mainnet": 1,
+  "avalanche-mainnet": 43114,
+  "bsc-mainnet": 56,
+  "klaytn-mainnet": 8217,
+  "celo-mainnet": 42220,
+  "aurora-mainnet": 1313161554,
   "optimism-mainnet": 10,
   "polygon-mainnet": 137,
   "polygon-mumbai": 80001,
   rinkeby: 4,
 };
 
-function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
-  let jsonRpcUrl: string;
+function getChainConfig(chain: string): NetworkUserConfig {
+  let jsonRpcUrl: string | undefined;
+  let apiKey: string | undefined;
   switch (chain) {
-    case "avalanche":
-      jsonRpcUrl = "https://api.avax.network/ext/bc/C/rpc";
+    case "eth-mainnet" ||
+      "avalanche-mainnet" ||
+      "bsc-mainnet" ||
+      "klaytn-mainnet" ||
+      "celo-mainnet" ||
+      "aurora-mainnet" ||
+      "polygon-mainnet":
+      jsonRpcUrl = api_keys[chain].jsonRpcUrl;
+      apiKey = api_keys[chain].API_Key;
       break;
-    case "bsc":
-      jsonRpcUrl = "https://bsc-dataseed1.binance.org";
-      break;
+
     default:
-      jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
+      throw new Error("No chain description in a api_keys file");
   }
+
+  if (!apiKey) {
+    throw new Error("Please set your API_KEY in a api_keys file");
+  }
+  jsonRpcUrl = jsonRpcUrl + "/" + apiKey;
+
   return {
     accounts: {
       count: 10,
@@ -60,7 +71,6 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   etherscan: {
     apiKey: {
-      arbitrumOne: process.env.ARBISCAN_API_KEY || "",
       avalanche: process.env.SNOWTRACE_API_KEY || "",
       bsc: process.env.BSCSCAN_API_KEY || "",
       mainnet: process.env.ETHERSCAN_API_KEY || "",
@@ -83,11 +93,12 @@ const config: HardhatUserConfig = {
       },
       chainId: chainIds.hardhat,
     },
-    arbitrum: getChainConfig("arbitrum-mainnet"),
-    avalanche: getChainConfig("avalanche"),
-    bsc: getChainConfig("bsc"),
-    mainnet: getChainConfig("mainnet"),
-    optimism: getChainConfig("optimism-mainnet"),
+    celo: getChainConfig("celo-mainnet"),
+    aurora: getChainConfig("aurora-mainnet"),
+    klaytn: getChainConfig("klaytn-mainnet"),
+    avalanche: getChainConfig("avalanche-mainnet"),
+    bsc: getChainConfig("bsc-mainnet"),
+    eth: getChainConfig("eth-mainnet"),
     "polygon-mainnet": getChainConfig("polygon-mainnet"),
     "polygon-mumbai": getChainConfig("polygon-mumbai"),
     rinkeby: getChainConfig("rinkeby"),
@@ -110,7 +121,7 @@ const config: HardhatUserConfig = {
       // https://hardhat.org/hardhat-network/#solidity-optimizer-support
       optimizer: {
         enabled: true,
-        runs: 800,
+        runs: 1200,
       },
     },
   },
