@@ -85,7 +85,8 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
                 pathInfos[pathInfos.length - 1].toToken == toToken,
             "not same input"
         );
-        _deposit(msg.sender, fromToken, amountIn);
+
+        _deposit(msg.sender, isWETH[0] == 1 ? _WETH_ADDRESS_ : fromToken, amountIn);
 
         // weth came to routeproxy at first so unwrap weth to eth
         if (isWETH[0] == 1) {
@@ -138,7 +139,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
                 weightPathInfo.toToken == toToken,
             "not same input"
         );
-        _deposit(msg.sender, fromToken, amountIn);
+        _deposit(msg.sender, isWETH[0] == 1 ? _WETH_ADDRESS_ : fromToken, amountIn);
 
         // weth came to routeproxy at first so unwrap weth to eth
         if (isWETH[0] == 1) {
@@ -189,7 +190,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
                 weightPathInfos[weightPathInfos.length - 1].toToken == toToken,
             "not same input"
         );
-        _deposit(msg.sender, fromToken, amountIn);
+        _deposit(msg.sender, isWETH[0] == 1 ? _WETH_ADDRESS_ : fromToken, amountIn);
 
         // weth came to routeproxy at first so unwrap weth to eth
         if (isWETH[0] == 1) {
@@ -245,7 +246,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
                 linearWeightPathInfo.toToken == toToken,
             "not same input"
         );
-        _deposit(msg.sender, fromToken, amountIn);
+        _deposit(msg.sender, isWETH[0] == 1 ? _WETH_ADDRESS_ : fromToken, amountIn);
         // weth came to routeproxy at first so unwrap weth to eth
         if (isWETH[0] == 1) {
             require(fromToken == _ETH_ADDRESS_, "Not valid fromToken");
@@ -302,7 +303,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
                 linearWeightPathInfo.toToken == toToken,
             "not same input"
         );
-        _deposit(msg.sender, fromToken, amountIn);
+        _deposit(msg.sender, isWETH[0] == 1 ? _WETH_ADDRESS_ : fromToken, amountIn);
         // weth came to routeproxy at first so unwrap weth to eth
         if (isWETH[0] == 1) {
             require(fromToken == _ETH_ADDRESS_, "Not valid fromToken");
