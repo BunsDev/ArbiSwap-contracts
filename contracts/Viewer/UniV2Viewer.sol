@@ -11,7 +11,7 @@ import "./intf/IUniswapV2PoolInfoViewer.sol";
  */
 import "hardhat/console.sol";
 
-contract UniswapV2Viewer is IUniswapV2PoolInfoViewer {
+contract UniV2Viewer is IUniswapV2PoolInfoViewer {
     uint32 public constant DEFAUlT_FEE = 3000;
 
     function getPoolInfo(address pool) public view override returns (UniswapV2PoolInfo memory) {

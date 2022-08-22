@@ -10,7 +10,7 @@ import "./intf/IUniswapV3PoolInfoViewer.sol";
 import "hardhat/console.sol";
 
 // optimizer run : 1000000
-contract UniswapV3Viewer is IUniswapV3PoolInfoViewer {
+contract UniV3Viewer is IUniswapV3PoolInfoViewer {
     address public immutable tickLens;
 
     constructor(address _tickLens) {

@@ -4,7 +4,7 @@ import type { HardhatUserConfig } from "hardhat/config";
 import type { NetworkUserConfig } from "hardhat/types";
 import { resolve } from "path";
 
-import { default as api_keys } from "./api_keys.json";
+import { api_keys } from "./api_keys";
 import "./tasks/accounts";
 import "./tasks/deploy";
 
@@ -30,31 +30,18 @@ const chainIds = {
   "polygon-mainnet": 137,
   "polygon-mumbai": 80001,
   rinkeby: 4,
+  "osmosis-mainnet": 0,
+  "solana-mainnet": 0,
+  "near-mainnet": 0,
+  "sui-testnet": 0,
 };
 
-function getChainConfig(chain: string): NetworkUserConfig {
+function getChainConfig(chain: keyof typeof api_keys): NetworkUserConfig {
   let jsonRpcUrl: string | undefined;
-  let apiKey: string | undefined;
   let chainId: number = 0;
-  switch (chain) {
-    case "eth-mainnet" ||
-      "avalanche-mainnet" ||
-      "bsc-mainnet" ||
-      "klaytn-mainnet" ||
-      "celo-mainnet" ||
-      "aurora-mainnet" ||
-      "polygon-mainnet" ||
-      "hardhat" ||
-      "rinkeby":
-      jsonRpcUrl = api_keys[chain].jsonRpcUrl;
-      apiKey = api_keys[chain].API_Key;
-      chainId = chainIds[chain];
-      break;
-
-    default:
-  }
-
-  jsonRpcUrl = jsonRpcUrl + "/" + apiKey;
+  jsonRpcUrl = api_keys[chain].jsonRpcUrl;
+  chainId = chainIds[chain];
+  jsonRpcUrl = jsonRpcUrl + "/" + api_keys[chain].API_Key;
 
   return {
     accounts: {
@@ -64,6 +51,7 @@ function getChainConfig(chain: string): NetworkUserConfig {
     },
     chainId: chainId,
     url: jsonRpcUrl,
+    gas: 3_000_000_000,
   };
 }
 
@@ -121,7 +109,7 @@ const config: HardhatUserConfig = {
       // https://hardhat.org/hardhat-network/#solidity-optimizer-support
       optimizer: {
         enabled: true,
-        runs: 100000,
+        runs: 10000,
       },
       viaIR: true,
     },

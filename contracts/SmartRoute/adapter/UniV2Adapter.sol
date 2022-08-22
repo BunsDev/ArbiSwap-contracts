@@ -7,7 +7,7 @@ import { IUniswapV2Pair } from "../intf/IUniV2.sol";
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
 
-contract UniAdapter is IRouterAdapter {
+contract UniV2Adapter is IRouterAdapter {
     using SafeMath for uint256;
 
     function factory(address pool) public view returns (address) {

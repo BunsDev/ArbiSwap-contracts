@@ -1,9 +1,18 @@
 const matic_config = {
+  //WETH(WMATIC)
+  WETH: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+
+  //lending address provider
+  AAVEV2LendingAddressProvider: "0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5",
+
   //UniV2Factory
   MMFactory: "0x7cFB780010e9C861e03bCbC7AC12E013137D47A5",
   QuickFactory: "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32",
   MeshFactory: "0x9f3044f7f9fc8bc9ed615d54845b4577b833282d",
   SushiFactory: "0xc35DADB65012eC5796536bD9864eD8773aBc74C4",
+
+  //UniV3Factory
+  UniV3Factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
 
   //CurveAddressProvider
   CurveAddressProvider: "0x0000000022D53366457F9d5E68Ec105046FC4383",
@@ -15,25 +24,25 @@ const matic_config = {
   TickLens: "0xbfd8137f7d1516D3ea5cA83523914859ec47F573",
 
   //Approve
-  Approve: "",
-  ApproveProxy: "",
+  Approve: "0xE1650232Bbd47DafFCa39c4261521b8015aefBB7",
 
   //Adapter
-  UniAdapter: "",
-  UniV3Adapter: "",
-  CurveAdapter: "",
-  CurveCryptoAdapter: "",
-  BalancerAdapter: "",
+  UniV2Adapter: "0x8c41C6BafbF61F6F749Ef9D5CfF2d18399e2539a",
+  UniV3Adapter: "0x33dF7290ED46B714D45Fa21AF857799dA6eeb2b0",
+  CurveAdapter: "0xE3389f707D395AC2D4867E4091F6bD6e9Fe64b59",
+  CurveCryptoAdapter: "0x383D35E81fb7eE06FEaa4deF44D63B8C257F6A54",
+  BalancerAdapter: "0x08f5841F806a57d8eDcB168018c15f496bF27BF0",
 
   //Viewer
-  UniViewer: "",
-  UniV3Viewer: "",
-  CurveViewer: "",
-  CurveCryptoViewer: "",
-  BalancerViewer: "",
+  UniV2Viewer: "0xBb1d41241eec1AB17A4076720D30496f4148c88a",
+  UniV3Viewer: "0x9711577F5f7F7162B8086567Ed7b0CcF58A68876",
+  CurveViewer: "0xEfbA9791DfDf14844a3Cb2b31F28365F8123193a",
+  CurveCryptoViewer: "0x10A4F4A39865b2c355Fb72460Cb3874e161122ac",
+  BalancerViewer: "0x988cD67a8bcd6749e55Dd5fEc0D56321de0885C4",
 
   //Proxy
   RouteProxy: "",
+  ApproveProxy: "0x19f6f1e909A8F9E3d31C2eFcb5274f8f86226eb8",
 
   //Tokens
   Tokens: {

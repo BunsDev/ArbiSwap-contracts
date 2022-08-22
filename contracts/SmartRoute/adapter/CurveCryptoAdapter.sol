@@ -8,7 +8,7 @@ import { SafeMath } from "../../lib/SafeMath.sol";
 import { UniERC20 } from "../../lib/UniERC20.sol";
 
 // In curve factory = registry
-contract CurveAdapter is IRouterAdapter {
+contract CurveCryptoAdapter is IRouterAdapter {
     using SafeMath for uint256;
     using UniERC20 for IERC20;
 

@@ -20,7 +20,7 @@
 # files
 *.env
 *.log
-api_keys.json
+api_keys.ts
 .pnp.*
 coverage.json
 npm-debug.log*
