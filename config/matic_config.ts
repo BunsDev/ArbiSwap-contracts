@@ -3,7 +3,7 @@ const matic_config = {
   WETH: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
 
   //lending address provider
-  AAVEV2LendingAddressProvider: "0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5",
+  AAVEV2LendingAddressProvider: "0xd05e3E715d945B59290df0ae8eF85c1BdB684744",
 
   //UniV2Factory
   MMFactory: "0x7cFB780010e9C861e03bCbC7AC12E013137D47A5",
@@ -41,7 +41,7 @@ const matic_config = {
   BalancerViewer: "0x988cD67a8bcd6749e55Dd5fEc0D56321de0885C4",
 
   //Proxy
-  RouteProxy: "",
+  RouteProxy: "0x2dF7E60f58e931b7aeC75066402B2F108CB38D73",
   ApproveProxy: "0x19f6f1e909A8F9E3d31C2eFcb5274f8f86226eb8",
 
   //Tokens

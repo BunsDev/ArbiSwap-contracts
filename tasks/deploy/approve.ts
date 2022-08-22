@@ -7,7 +7,7 @@ import type { ApproveProxy } from "../../src/types/SmartRoute/ApproveProxy.sol";
 import type { ApproveProxy__factory } from "../../src/types/factories/SmartRoute/ApproveProxy.sol/ApproveProxy__factory";
 import type { Approve__factory } from "../../src/types/factories/SmartRoute/Approve__factory";
 
-task("deploy:Proxies").setAction(async function (taskArguments: TaskArguments, { ethers }) {
+task("deploy:Approve").setAction(async function (taskArguments: TaskArguments, { ethers }) {
   const signers: SignerWithAddress[] = await ethers.getSigners();
 
   const approveFactory: Approve__factory = <Approve__factory>await ethers.getContractFactory("Approve");
