@@ -12,16 +12,26 @@ contract CurveAdapter is IRouterAdapter {
     using SafeMath for uint256;
     using UniERC20 for IERC20;
 
-    constructor(address[] memory registries, address[] memory WETHs) {
-        _changeWETH(registries, WETHs);
+    address[] public registries;
+
+    constructor(address[] memory _registries) {
+        registries = _registries;
     }
 
-    function factory(address pool) public view override returns (address) {
-        return ICurve(pool).factory();
+    function _setRegistries(address[] memory _registries) internal {
+        registries = _registries;
     }
 
-    function getWETH(address pool) public view returns (address) {
-        return factoryToWETH[this.factory(pool)];
+    function setRegistries(address[] memory _registries) external onlyOwner {
+        _setRegistries(_registries);
+    }
+
+    function getRegistries() external view returns (address[] memory) {
+        address[] memory _registries = new address[](registries.length);
+        for (uint256 i; i < registries.length; i++) {
+            _registries[i] = registries[i];
+        }
+        return _registries;
     }
 
     function _getAmountOut(
@@ -40,11 +50,18 @@ contract CurveAdapter is IRouterAdapter {
         )
     {
         require(amountIn > 0, "Curve: INSUFFICIENT_INPUT_AMOUNT");
-        (int128 i, int128 j, bool isUnder) = ICurveRegistry(this.factory(pool)).get_coin_indices(
-            pool,
-            fromToken,
-            toToken
-        );
+
+        address registry;
+        for (uint256 k; k < registries.length; k++) {
+            if (ICurveRegistry(registries[k]).get_lp_token(pool) != address(0)) {
+                registry = registries[k];
+                break;
+            }
+        }
+
+        require(registry != address(0), "Pool is not registered");
+
+        (int128 i, int128 j, bool isUnder) = ICurveRegistry(registry).get_coin_indices(pool, fromToken, toToken);
         if (isUnder) {
             _output = ICurve(pool).get_dy_underlying(i, j, amountIn);
         } else {
@@ -82,5 +99,7 @@ contract CurveAdapter is IRouterAdapter {
         } else {
             ICurve(pool).exchange(i, j, amountIn, 1);
         }
+
+        IERC20(toToken).uniTransfer(to, _output);
     }
 }

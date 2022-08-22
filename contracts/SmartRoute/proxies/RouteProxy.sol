@@ -320,6 +320,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
             IERC20(toToken).uniTransfer(linearWeightPathInfo.to, output);
         }
 
+        // we should execute multihopsingleswap array only to prevent errors from overusing the same pool before updating states
         for (uint256 i; i < flashDes.length; i++) {
             require(flashDes[i].swaps[0].amountIn == flashDes[i].amountIn, "flashloan amountIn not match");
             require(
@@ -476,10 +477,10 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
         address to = toToken == _ETH_ADDRESS_ ? _WETH_ADDRESS_ : toToken;
 
         if (poolEdition == 0) {
-            // uni, balancer, ... exchange is executed after token transfer
+            // uniV2, balancer, ... exchange is executed after token transfer
             IERC20(from).safeTransfer(pool, amountIn);
         } else if (poolEdition == 1) {
-            // curve, dodov1, ... token transfer is executed in exchange function
+            // curve, dodov1, uniV3 ... token transfer is executed in exchange function
             IERC20(from).uniTransfer(adapter, amountIn);
         } else {
             revert("Invalid poolEdition");

@@ -4,10 +4,12 @@ pragma solidity 0.8.15;
 interface ICurvePoolInfoViewer {
     struct CurvePoolInfo {
         uint256 totalSupply;
+        uint256 A;
+        uint256[] fees;
         uint256[] tokenBalances;
         address pool;
         address[] tokenList;
-        uint64[] fees;
+        uint256 isMeta;
         uint8 decimals;
         string name;
         string symbol;

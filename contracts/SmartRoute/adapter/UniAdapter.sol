@@ -3,23 +3,15 @@
 pragma solidity 0.8.15;
 import { ReentrancyGuard } from "../../lib/ReentrancyGuard.sol";
 import { IRouterAdapter } from "../intf/IRouterAdapter.sol";
-import { IUni } from "../intf/IUni.sol";
+import { IUniswapV2Pair } from "../intf/IUni.sol";
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
 
 contract UniAdapter is IRouterAdapter {
     using SafeMath for uint256;
 
-    constructor(address[] memory factories, address[] memory WETHs) {
-        _changeWETH(factories, WETHs);
-    }
-
-    function factory(address pool) public view override returns (address) {
-        return IUni(pool).factory();
-    }
-
-    function getWETH(address pool) public view returns (address) {
-        return factoryToWETH[this.factory(pool)];
+    function factory(address pool) public view returns (address) {
+        return IUniswapV2Pair(pool).factory();
     }
 
     function getAmountOut(
@@ -30,12 +22,12 @@ contract UniAdapter is IRouterAdapter {
     ) public view override returns (uint256 _output) {
         require(amountIn > 0, "UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT");
 
-        (uint256 reserve0, uint256 reserve1, ) = IUni(pool).getReserves();
+        (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(pool).getReserves();
         require(reserve0 > 0 && reserve1 > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
 
         uint256 reserveInput;
         uint256 reserveOutput;
-        address token0 = IUni(pool).token0();
+        address token0 = IUniswapV2Pair(pool).token0();
         if (fromToken == token0) {
             (reserveInput, reserveOutput) = (reserve0, reserve1);
             require(toToken == token0, "invalid token pair");
@@ -46,10 +38,17 @@ contract UniAdapter is IRouterAdapter {
             revert("invalid token pair");
         }
 
-        uint256 amountInWithFee = amountIn.mul(997);
-        uint256 numerator = amountInWithFee.mul(reserveOutput);
-        uint256 denominator = reserveInput.mul(1000).add(amountInWithFee);
-        _output = numerator / denominator;
+        try IUniswapV2Pair(pool).swapFee() returns (uint32 _fee) {
+            uint256 amountInWithFee = amountIn.mul(uint256(10000).sub(_fee));
+            uint256 numerator = amountInWithFee.mul(reserveOutput);
+            uint256 denominator = reserveInput.mul(10000).add(amountInWithFee);
+            _output = numerator / denominator;
+        } catch {
+            uint256 amountInWithFee = amountIn.mul(997);
+            uint256 numerator = amountInWithFee.mul(reserveOutput);
+            uint256 denominator = reserveInput.mul(1000).add(amountInWithFee);
+            _output = numerator / denominator;
+        }
     }
 
     function swapExactIn(
@@ -60,9 +59,9 @@ contract UniAdapter is IRouterAdapter {
         address to
     ) external override returns (uint256 _output) {
         _output = getAmountOut(fromToken, amountIn, toToken, pool);
-        (uint256 amount0Out, uint256 amount1Out) = fromToken == IUni(pool).token0()
+        (uint256 amount0Out, uint256 amount1Out) = fromToken == IUniswapV2Pair(pool).token0()
             ? (uint256(0), _output)
             : (_output, uint256(0));
-        IUni(pool).swap(amount0Out, amount1Out, to, new bytes(0));
+        IUniswapV2Pair(pool).swap(amount0Out, amount1Out, to, new bytes(0));
     }
 }

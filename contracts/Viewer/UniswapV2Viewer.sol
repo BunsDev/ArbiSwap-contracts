@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import { IERC20Metadata } from "../intf/IERC20Metadata.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
-import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
+import { IUniswapV2Pair } from "../SmartRoute/intf/IUni.sol";
 
 import "./intf/IUniswapV2PoolInfoViewer.sol";
 
@@ -13,7 +13,7 @@ import "./intf/IUniswapV2PoolInfoViewer.sol";
 import "hardhat/console.sol";
 
 contract UniswapV2Viewer is IUniswapV2PoolInfoViewer {
-    uint64 public constant FEE = 3000;
+    uint32 public constant DEFAUlT_FEE = 3000;
 
     function getPoolInfo(address pool) public view override returns (UniswapV2PoolInfo memory) {
         IUniswapV2Pair uniswapV2Pair = IUniswapV2Pair(pool);
@@ -22,18 +22,23 @@ contract UniswapV2Viewer is IUniswapV2PoolInfoViewer {
         tokenList[1] = uniswapV2Pair.token1();
         uint256[] memory tokenBalances = new uint256[](2);
         (tokenBalances[0], tokenBalances[1], ) = uniswapV2Pair.getReserves();
-        uint64[] memory fees = new uint64[](1);
-        fees[0] = FEE;
-        UniswapV2PoolInfo memory poolInfo = UniswapV2PoolInfo({
-            totalSupply: uniswapV2Pair.totalSupply(),
-            tokenBalances: tokenBalances,
-            pool: pool,
-            tokenList: tokenList,
-            fees: fees,
-            decimals: uniswapV2Pair.decimals(),
-            name: uniswapV2Pair.name(),
-            symbol: uniswapV2Pair.symbol()
-        });
-        return poolInfo;
+        uint32[] memory fees = new uint32[](1);
+
+        try IUniswapV2Pair(pool).swapFee() returns (uint32 _fee) {
+            fees[0] = _fee * 100;
+        } catch {
+            fees[0] = DEFAUlT_FEE;
+        }
+        return
+            UniswapV2PoolInfo({
+                totalSupply: uniswapV2Pair.totalSupply(),
+                tokenBalances: tokenBalances,
+                pool: pool,
+                tokenList: tokenList,
+                fees: fees,
+                decimals: uniswapV2Pair.decimals(),
+                name: uniswapV2Pair.name(),
+                symbol: uniswapV2Pair.symbol()
+            });
     }
 }
