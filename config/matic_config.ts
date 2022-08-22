@@ -39,6 +39,7 @@ const matic_config = {
   CurveViewer: "0xEfbA9791DfDf14844a3Cb2b31F28365F8123193a",
   CurveCryptoViewer: "0x10A4F4A39865b2c355Fb72460Cb3874e161122ac",
   BalancerViewer: "0x988cD67a8bcd6749e55Dd5fEc0D56321de0885C4",
+  TokenViewer: "0xE5406aeb878a341656E8c6A2E16d0b07728F5977",
 
   //Proxy
   RouteProxy: "0x2dF7E60f58e931b7aeC75066402B2F108CB38D73",

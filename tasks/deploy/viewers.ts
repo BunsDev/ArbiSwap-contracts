@@ -7,6 +7,7 @@ import type {
   BalancerViewer,
   CurveCryptoViewer,
   CurveViewer,
+  TokenViewer,
   UniV2Viewer,
   UniV3Viewer,
 } from "../../src/types/Viewer/index";
@@ -14,6 +15,7 @@ import type {
   BalancerViewer__factory,
   CurveCryptoViewer__factory,
   CurveViewer__factory,
+  TokenViewer__factory,
   UniV2Viewer__factory,
   UniV3Viewer__factory,
 } from "../../src/types/factories/Viewer/index";
@@ -52,4 +54,9 @@ task("deploy:Viewers").setAction(async function (taskArguments: TaskArguments, {
   const uniV3Viewer: UniV3Viewer = <UniV3Viewer>await uniV3ViewerFactory.connect(signers[0]).deploy(config.TickLens);
   await uniV3Viewer.deployed();
   console.log("UniV3Viewer deployed to: ", uniV3Viewer.address);
+
+  const tokenViewerFactory: TokenViewer__factory = <TokenViewer__factory>await ethers.getContractFactory("TokenViewer");
+  const tokenViewer: TokenViewer = <TokenViewer>await tokenViewerFactory.connect(signers[0]).deploy();
+  await tokenViewer.deployed();
+  console.log("TokenViewer deployed to: ", tokenViewer.address);
 });
