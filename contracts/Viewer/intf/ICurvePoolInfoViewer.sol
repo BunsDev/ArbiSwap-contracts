@@ -16,4 +16,6 @@ interface ICurvePoolInfoViewer {
     }
 
     function getPoolInfo(address pool) external view returns (CurvePoolInfo memory);
+
+    function pools(address factory) external view returns (address[] memory);
 }

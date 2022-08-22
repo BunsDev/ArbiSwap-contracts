@@ -68,4 +68,12 @@ contract CurveCryptoViewer is ICurveCryptoPoolInfoViewer {
                 symbol: token.symbol()
             });
     }
+
+    function pools(address _registry) external view returns (address[] memory) {
+        address[] memory _pools = new address[](ICurveRegistry(_registry).pool_count());
+        for (uint256 i; i < _pools.length; i++) {
+            _pools[i] = ICurveRegistry(_registry).pool_list(i);
+        }
+        return _pools;
+    }
 }

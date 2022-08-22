@@ -8,6 +8,10 @@ interface ICurveProvider {
 }
 
 interface ICurveRegistry {
+    function pool_list(uint256 idx) external view returns (address);
+
+    function pool_count() external view returns (uint256);
+
     function get_coins(address _pool) external view returns (address[] memory);
 
     function get_underlying_coins(address _pool) external view returns (address[] memory);

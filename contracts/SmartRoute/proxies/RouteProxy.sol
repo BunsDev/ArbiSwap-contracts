@@ -30,7 +30,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
     // ============ Storage ============
 
     address constant _ETH_ADDRESS_ = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    address public immutable _WETH_ADDRESS_;
+    address payable public immutable _WETH_ADDRESS_;
     address public immutable _APPROVE_PROXY_;
 
     // ============ Events ============
@@ -49,7 +49,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
     constructor(
         address approveProxy,
         address _addressProvider,
-        address __WETH_ADDRESS_
+        address payable __WETH_ADDRESS_
     ) FlashLoanReceiverBaseV2(_addressProvider) {
         _APPROVE_PROXY_ = approveProxy;
         _WETH_ADDRESS_ = __WETH_ADDRESS_;
@@ -494,11 +494,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
         }
     }
 
-    function _calcMultiHopSingleSwap(MultiAMMLib.Swap[] memory pathInfos)
-        internal
-        view
-        returns (uint256[] memory outputs)
-    {
+    function _calcMultiHopSingleSwap(MultiAMMLib.Swap[] memory pathInfos) internal returns (uint256[] memory outputs) {
         uint256 pathInfoNum = pathInfos.length;
         outputs = new uint256[](pathInfoNum + 1);
         outputs[0] = pathInfos[0].amountIn;
@@ -522,11 +518,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
         );
     }
 
-    function _calcSingleHopMultiSwap(MultiAMMLib.WeightedSwap memory weightPathInfo)
-        internal
-        view
-        returns (uint256 output)
-    {
+    function _calcSingleHopMultiSwap(MultiAMMLib.WeightedSwap memory weightPathInfo) internal returns (uint256 output) {
         require(
             weightPathInfo.weights.length == weightPathInfo.adapters.length &&
                 weightPathInfo.weights.length == weightPathInfo.pools.length &&
@@ -560,7 +552,6 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
 
     function _calcMultiHopMultiSwap(MultiAMMLib.WeightedSwap[] memory weightPathInfos)
         internal
-        view
         returns (uint256[] memory outputs)
     {
         outputs = new uint256[](weightPathInfos.length + 1);
@@ -576,7 +567,6 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
 
     function _calcLinearSplitMultiHopMultiSwap(MultiAMMLib.LinearWeightedSwap memory linearWeightPathInfo)
         internal
-        view
         returns (uint256 output)
     {
         require(

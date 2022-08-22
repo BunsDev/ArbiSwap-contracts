@@ -9,7 +9,7 @@ interface Routing {
         uint256 amountIn,
         address toToken,
         address pool
-    ) external view returns (uint256 _output);
+    ) external returns (uint256 _output);
 
     function swapExactIn(
         address fromToken,

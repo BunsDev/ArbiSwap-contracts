@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
-import { IERC20 } from "../../intf/IERC20.sol";
 
-interface BalancerPool {
+interface IBalancerPool {
     struct SwapRequest {
         IBalancerVault.SwapKind kind;
-        IERC20 tokenIn;
-        IERC20 tokenOut;
+        address tokenIn;
+        address tokenOut;
         uint256 amount;
         // Misc data
         bytes32 poolId;
@@ -44,8 +43,6 @@ interface BalancerPool {
 
     function decimals() external pure returns (uint8);
 }
-
-interface IAsset {}
 
 interface IBalancerVault {
     // Swaps
@@ -96,8 +93,8 @@ interface IBalancerVault {
     struct SingleSwap {
         bytes32 poolId;
         SwapKind kind;
-        IAsset assetIn;
-        IAsset assetOut;
+        address tokenIn;
+        address tokenOut;
         uint256 amount;
         bytes userData;
     }
@@ -130,12 +127,12 @@ interface IBalancerVault {
         external
         view
         returns (
-            IERC20[] memory tokens,
+            address[] memory tokens,
             uint256[] memory balances,
             uint256 lastChangeBlock
         );
 
-    function getPoolTokenInfo(bytes32 poolId, IERC20 token)
+    function getPoolTokenInfo(bytes32 poolId, address token)
         external
         view
         returns (

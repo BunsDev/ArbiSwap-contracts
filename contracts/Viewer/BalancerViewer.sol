@@ -16,7 +16,7 @@ contract BalancerViewer is IBalancerPoolInfoViewer {
 
     function getPoolInfo(address pool) public view override returns (BalancerPoolInfo memory) {
         IBalancerPool balancerPair = IBalancerPool(pool);
-        bytes32 memory poolId = balancerPair.getPoolId();
+        bytes32 poolId = balancerPair.getPoolId();
         (address[] memory tokenList, uint256[] memory tokenBalances, ) = IBalancerVault(balancerPair.getVault())
             .getPoolTokens(poolId);
         uint32[] memory fees = new uint32[](1);

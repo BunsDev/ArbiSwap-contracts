@@ -35,6 +35,7 @@ const chainIds = {
 function getChainConfig(chain: string): NetworkUserConfig {
   let jsonRpcUrl: string | undefined;
   let apiKey: string | undefined;
+  let chainId: number = 0;
   switch (chain) {
     case "eth-mainnet" ||
       "avalanche-mainnet" ||
@@ -42,18 +43,17 @@ function getChainConfig(chain: string): NetworkUserConfig {
       "klaytn-mainnet" ||
       "celo-mainnet" ||
       "aurora-mainnet" ||
-      "polygon-mainnet":
+      "polygon-mainnet" ||
+      "hardhat" ||
+      "rinkeby":
       jsonRpcUrl = api_keys[chain].jsonRpcUrl;
       apiKey = api_keys[chain].API_Key;
+      chainId = chainIds[chain];
       break;
 
     default:
-      throw new Error("No chain description in a api_keys file");
   }
 
-  if (!apiKey) {
-    throw new Error("Please set your API_KEY in a api_keys file");
-  }
   jsonRpcUrl = jsonRpcUrl + "/" + apiKey;
 
   return {
@@ -62,7 +62,7 @@ function getChainConfig(chain: string): NetworkUserConfig {
       mnemonic,
       path: "m/44'/60'/0'/0",
     },
-    chainId: chainIds[chain],
+    chainId: chainId,
     url: jsonRpcUrl,
   };
 }
@@ -121,8 +121,9 @@ const config: HardhatUserConfig = {
       // https://hardhat.org/hardhat-network/#solidity-optimizer-support
       optimizer: {
         enabled: true,
-        runs: 1200,
+        runs: 100000,
       },
+      viaIR: true,
     },
   },
   typechain: {

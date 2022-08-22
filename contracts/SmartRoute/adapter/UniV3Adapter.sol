@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: GPL-2.0-or-later
 
 pragma solidity 0.8.15;
 import { ReentrancyGuard } from "../../lib/ReentrancyGuard.sol";
@@ -7,66 +7,123 @@ import { IWETH } from "../../intf/IWETH.sol";
 import { IUniV3Pair, IUniswapV3SwapCallback } from "../intf/IUniV3.sol";
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
+import { SafeCast } from "../../lib/SafeCast.sol";
+import { UniERC20 } from "../../lib/UniERC20.sol";
+import { SafeERC20 } from "../../lib/SafeERC20.sol";
 
-// to adapter like dodo V1
 contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
     using SafeMath for uint256;
+    using SafeCast for uint256;
+    using SafeCast for int256;
+    using UniERC20 for IERC20;
+    using SafeERC20 for IERC20;
+    bytes32 internal constant POOL_INIT_CODE_HASH = 0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54;
     /// @dev The minimum value that can be returned from SqrtRatioAtTick.
     uint160 public constant MIN_SQRT_RATIO = 4295128739;
     /// @dev The maximum value that can be returned from SqrtRatioAtTick.
     uint160 public constant MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342;
 
-    address public immutable _WETH_ADDRESS_;
+    address public immutable _Factory_;
+    address payable public immutable _WETH_ADDRESS_;
     address public constant _ETH_ADDRESS_ = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
-    constructor(address __WETH_ADDRESS_) {
+    constructor(address payable __WETH_ADDRESS_, address _factory) {
         _WETH_ADDRESS_ = __WETH_ADDRESS_;
+        _Factory_ = _factory;
     }
 
     struct SwapCallbackData {
         bytes path;
         address payer;
+        uint256 isQuote;
+    }
+
+    /// @notice Deterministically computes the pool address given the factory and PoolKey
+    /// @param token0 token0 address
+    /// @param token1 token1 address
+    /// @param fee fee
+    /// @return pool The contract address of the V3 pool
+    function computeAddress(
+        address token0,
+        address token1,
+        uint24 fee
+    ) internal view returns (address pool) {
+        require(token0 < token1);
+        pool = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            hex"ff",
+                            _Factory_,
+                            keccak256(abi.encode(token0, token1, fee)),
+                            POOL_INIT_CODE_HASH
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    /// @notice Returns the address of a valid Uniswap V3 Pool
+    /// @param tokenA tokenA address
+    /// @param tokenB tokenB address
+    /// @param fee fee
+    /// @return pool The V3 pool contract address
+    function verifyCallback(
+        address tokenA,
+        address tokenB,
+        uint24 fee
+    ) internal view returns (address pool) {
+        if (tokenA < tokenB) {
+            pool = computeAddress(tokenA, tokenB, fee);
+        } else {
+            pool = computeAddress(tokenB, tokenA, fee);
+        }
+        require(msg.sender == pool);
+    }
+
+    /// @dev Parses a revert reason that should contain the numeric quote
+    function parseRevertReason(bytes memory reason) private pure returns (uint256) {
+        if (reason.length != 32) {
+            if (reason.length < 68) revert("Unexpected error");
+            assembly {
+                reason := add(reason, 0x04)
+            }
+            revert(abi.decode(reason, (string)));
+        }
+        return abi.decode(reason, (uint256));
     }
 
     function factory(address pool) public view returns (address) {
         return IUniV3Pair(pool).factory();
     }
 
-    // TODO
     function getAmountOut(
         address fromToken,
         uint256 amountIn,
         address toToken,
         address pool
-    ) public view override returns (uint256 _output) {
-        require(amountIn > 0, "UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT");
+    ) public override returns (uint256 _output) {
+        require(amountIn > 0, "UniswapV3Library: INSUFFICIENT_INPUT_AMOUNT");
 
-        (uint256 reserve0, uint256 reserve1, ) = IUni(pool).getReserves();
-        require(reserve0 > 0 && reserve1 > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
+        bool zeroForOne = fromToken < toToken;
 
-        uint256 reserveInput;
-        uint256 reserveOutput;
-        address token0 = IUniV3Pair(pool).token0();
-        if (fromToken == token0) {
-            (reserveInput, reserveOutput) = (reserve0, reserve1);
-            require(toToken == token0, "invalid token pair");
-        } else if (toToken == token0) {
-            (reserveInput, reserveOutput) = (reserve1, reserve0);
-            require(fromToken == token0, "invalid token pair");
-        } else {
-            revert("invalid token pair");
-        }
+        SwapCallbackData memory swapCallBack;
+        swapCallBack.path = abi.encodePacked(fromToken, toToken, IUniV3Pair(pool).fee());
+        swapCallBack.payer = address(0);
+        swapCallBack.isQuote = 1;
 
-        try IUniswapV2Pair(pool).swapFee() returns (uint32 _fee) {
-            uint256 amountInWithFee = amountIn.mul(uint256(10000).sub(_fee));
-            uint256 numerator = amountInWithFee.mul(reserveOutput);
-            uint256 denominator = reserveInput.mul(10000).add(amountInWithFee);
-            _output = numerator / denominator;
-        } catch {
-            uint256 amountInWithFee = amountIn.mul(997);
-            uint256 numerator = amountInWithFee.mul(reserveOutput);
-            uint256 denominator = reserveInput.mul(1000).add(amountInWithFee);
-            _output = numerator / denominator;
+        try
+            IUniV3Pair(pool).swap(
+                address(this), // address(0) might cause issues with some tokens
+                zeroForOne,
+                amountIn.toInt256(),
+                (zeroForOne ? MIN_SQRT_RATIO + 1 : MAX_SQRT_RATIO - 1),
+                abi.encode(swapCallBack)
+            )
+        {} catch (bytes memory reason) {
+            return parseRevertReason(reason);
         }
     }
 
@@ -77,13 +134,12 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
         address pool,
         address to
     ) external override returns (uint256 _output) {
-        bool zeroForOne = IUniV3Pair(pool).token(0) == fromToken;
+        bool zeroForOne = IUniV3Pair(pool).token0() == fromToken;
 
-        bytes memory path = abi.encodePacked(fromToken, IUniV3Pair(pool).fee(), toToken);
         SwapCallbackData memory swapCallBack;
-        swapCallBack.path = path;
+        swapCallBack.path = abi.encodePacked(fromToken, toToken, IUniV3Pair(pool).fee());
         swapCallBack.payer = msg.sender;
-
+        swapCallBack.isQuote = 0;
         IERC20(fromToken).universalApproveMax(pool, amountIn);
 
         (int256 amount0, int256 amount1) = IUniV3Pair(pool).swap(
@@ -91,7 +147,7 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
             zeroForOne,
             amountIn.toInt256(),
             (zeroForOne ? MIN_SQRT_RATIO + 1 : MAX_SQRT_RATIO - 1),
-            abi.encodePacked(swapCallBack)
+            abi.encode(swapCallBack)
         );
 
         _output = uint256(-(zeroForOne ? amount1 : amount0));
@@ -105,16 +161,25 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
     ) external override {
         require(amount0Delta > 0 || amount1Delta > 0); // swaps entirely within 0-liquidity regions are not supported
         SwapCallbackData memory data = abi.decode(_data, (SwapCallbackData));
-        (address tokenIn, address tokenOut, ) = abi.decode(data.path, (address, address, uint24));
+        (address tokenIn, address tokenOut, uint24 fee) = abi.decode(data.path, (address, address, uint24));
 
-        (bool isExactInput, uint256 amountToPay) = amount0Delta > 0
-            ? (tokenIn < tokenOut, uint256(amount0Delta))
-            : (tokenOut < tokenIn, uint256(amount1Delta));
-        if (isExactInput) {
+        verifyCallback(tokenIn, tokenOut, fee);
+
+        (bool isExactInput, uint256 amountToPay, uint256 amountReceived) = amount0Delta > 0
+            ? (tokenIn < tokenOut, uint256(amount0Delta), uint256(-amount1Delta))
+            : (tokenOut < tokenIn, uint256(amount1Delta), uint256(-amount0Delta));
+
+        require(isExactInput, "Only exact input");
+        if (data.isQuote == 1) {
+            assembly {
+                let ptr := mload(0x40)
+                mstore(ptr, amountReceived)
+                revert(ptr, 32)
+            }
+        } else if (data.isQuote == 0) {
             pay(tokenIn, address(this), msg.sender, amountToPay);
         } else {
-            tokenIn = tokenOut; // swap in/out because exact output swaps are reversed
-            pay(tokenIn, address(this), msg.sender, amountToPay);
+            revert("invalid isQuote");
         }
     }
 

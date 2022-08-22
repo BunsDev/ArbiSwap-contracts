@@ -76,7 +76,7 @@ contract CurveAdapter is IRouterAdapter {
         uint256 amountIn,
         address toToken,
         address pool
-    ) public view override returns (uint256 _output) {
+    ) public override returns (uint256 _output) {
         (_output, , , ) = _getAmountOut(fromToken, amountIn, toToken, pool);
     }
 

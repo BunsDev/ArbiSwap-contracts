@@ -14,7 +14,7 @@ contract TokenViewer is ITokenInfoViewer {
         TokenInfo memory tokenInfo;
 
         /*
-         * @dev: some token in the pair does not support thouse metadata fetch, so it is included in try catch statement
+         * @dev: some token in the pair does not support those metadata fetch, so it is included in try catch statement
          */
         try this.getTokenMetadata(token) returns (uint8 decimals, string memory name, string memory symbol) {
             tokenInfo = TokenInfo(token, decimals, name, symbol);

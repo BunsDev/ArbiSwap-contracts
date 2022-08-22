@@ -14,4 +14,6 @@ interface IUniswapV2PoolInfoViewer {
     }
 
     function getPoolInfo(address pool) external view returns (UniswapV2PoolInfo memory);
+
+    function pools(address factory) external view returns (address[] memory);
 }

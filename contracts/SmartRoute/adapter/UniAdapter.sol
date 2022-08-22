@@ -19,7 +19,7 @@ contract UniAdapter is IRouterAdapter {
         uint256 amountIn,
         address toToken,
         address pool
-    ) public view override returns (uint256 _output) {
+    ) public override returns (uint256 _output) {
         require(amountIn > 0, "UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT");
 
         (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(pool).getReserves();

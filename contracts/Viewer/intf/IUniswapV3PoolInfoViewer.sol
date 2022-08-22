@@ -6,7 +6,7 @@ interface IUniswapV3PoolInfoViewer {
     struct UniswapV3PoolInfo {
         address pool;
         address[] tokenList;
-        uint256 block_timestamp;
+        uint32 block_timestamp;
         uint160 sqrtPriceX96;
         uint128 liquidity;
         uint24 fee;

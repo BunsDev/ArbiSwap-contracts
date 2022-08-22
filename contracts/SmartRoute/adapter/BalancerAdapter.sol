@@ -19,20 +19,20 @@ contract BalancerAdapter is IRouterAdapter {
         uint256 amountIn,
         address toToken,
         address pool
-    ) public view override returns (uint256 _output) {
-        bytes memory poolId = IBalancerPool(pool).getPoolId();
+    ) public override returns (uint256 _output) {
+        bytes32 poolId = IBalancerPool(pool).getPoolId();
 
         IBalancerVault vault = IBalancerVault(IBalancerPool(pool).getVault());
 
-        SwapRequest memory request;
-        request.kind = vault.SwapKind.GIVEN_IN;
-        request.assetIn = IERC20(fromToken);
-        request.assetOut = IERC20(toToken);
+        IBalancerPool.SwapRequest memory request;
+        request.kind = IBalancerVault.SwapKind.GIVEN_IN;
+        request.tokenIn = fromToken;
+        request.tokenOut = toToken;
         request.amount = amountIn;
         request.poolId = poolId;
 
-        (uint256 fromBalance, , , ) = vault.getPoolTokenInfo(poolId, IERC20(fromToken));
-        (uint256 toBalance, , , ) = vault.getPoolTokenInfo(poolId, IERC20(toToken));
+        (uint256 fromBalance, , , ) = vault.getPoolTokenInfo(poolId, fromToken);
+        (uint256 toBalance, , , ) = vault.getPoolTokenInfo(poolId, toToken);
 
         _output = IBalancerPool(pool).onSwap(request, fromBalance, toBalance);
     }
@@ -47,14 +47,14 @@ contract BalancerAdapter is IRouterAdapter {
         IBalancerVault.SingleSwap memory singleswap;
         singleswap.poolId = IBalancerPool(pool).getPoolId();
         singleswap.kind = IBalancerVault.SwapKind.GIVEN_IN;
-        singleswap.assetIn = fromToken;
-        singleswap.assetOut = toToken;
+        singleswap.tokenIn = fromToken;
+        singleswap.tokenOut = toToken;
         singleswap.amount = amountIn;
 
         IBalancerVault.FundManagement memory fundManagement;
         fundManagement.sender = address(this);
         fundManagement.fromInternalBalance = false;
-        fundManagement.recipient = to;
+        fundManagement.recipient = payable(to);
         fundManagement.toInternalBalance = false;
 
         IERC20(fromToken).universalApproveMax(IBalancerPool(pool).getVault(), amountIn);

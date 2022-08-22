@@ -28,4 +28,6 @@ interface ICurveCryptoPoolInfoViewer {
     }
 
     function getPoolInfo(address pool) external view returns (CurveCryptoPoolInfo memory);
+
+    function pools(address factory) external view returns (address[] memory);
 }

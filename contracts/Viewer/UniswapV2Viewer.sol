@@ -2,8 +2,7 @@
 pragma solidity 0.8.15;
 
 import { IERC20Metadata } from "../intf/IERC20Metadata.sol";
-import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
-import { IUniswapV2Pair } from "../SmartRoute/intf/IUni.sol";
+import { IUniswapV2Pair, IUniswapV2Factory } from "../SmartRoute/intf/IUni.sol";
 
 import "./intf/IUniswapV2PoolInfoViewer.sol";
 
@@ -40,5 +39,13 @@ contract UniswapV2Viewer is IUniswapV2PoolInfoViewer {
                 name: uniswapV2Pair.name(),
                 symbol: uniswapV2Pair.symbol()
             });
+    }
+
+    function pools(address _facotry) external view returns (address[] memory) {
+        address[] memory _pools = new address[](IUniswapV2Factory(_facotry).allPairsLength());
+        for (uint256 i; i < _pools.length; i++) {
+            _pools[i] = IUniswapV2Factory(_facotry).allPairs(i);
+        }
+        return _pools;
     }
 }
