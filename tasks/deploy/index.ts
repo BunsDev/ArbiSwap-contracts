@@ -1,4 +1,3 @@
 import "./adapters";
-import "./approve";
-import "./routeProxy";
+import "./route";
 import "./viewers";
