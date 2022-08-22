@@ -6,13 +6,11 @@ import { ICurveProvider, ICurveRegistry, ICurve } from "../intf/ICurve.sol";
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
 import { UniERC20 } from "../../lib/UniERC20.sol";
-import { SafeERC20 } from "../../lib/SafeERC20.sol";
 
 // In curve factory = registry
 contract CurveAdapter is IRouterAdapter {
     using SafeMath for uint256;
     using UniERC20 for IERC20;
-    using SafeERC20 for IERC20;
 
     address public immutable registry;
 
@@ -76,6 +74,6 @@ contract CurveAdapter is IRouterAdapter {
             ICurve(pool).exchange(i, j, amountIn, 1);
         }
 
-        IERC20(toToken).safeTransfer(to, _output);
+        IERC20(toToken).uniTransfer(to, _output);
     }
 }

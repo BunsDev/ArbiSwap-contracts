@@ -22,7 +22,7 @@ contract BalancerAdapter is IRouterAdapter {
     ) public override returns (uint256 _output) {
         bytes32 poolId = IBalancerPool(pool).getPoolId();
 
-        IBalancerVault vault = IBalancerVault(IBalancerPool(pool).getVault());
+        IBalancerVault _vault = IBalancerVault(IBalancerPool(pool).getVault());
 
         IBalancerPool.SwapRequest memory request;
         request.kind = IBalancerVault.SwapKind.GIVEN_IN;
@@ -31,8 +31,8 @@ contract BalancerAdapter is IRouterAdapter {
         request.amount = amountIn;
         request.poolId = poolId;
 
-        (uint256 fromBalance, , , ) = vault.getPoolTokenInfo(poolId, fromToken);
-        (uint256 toBalance, , , ) = vault.getPoolTokenInfo(poolId, toToken);
+        (uint256 fromBalance, , , ) = _vault.getPoolTokenInfo(poolId, fromToken);
+        (uint256 toBalance, , , ) = _vault.getPoolTokenInfo(poolId, toToken);
 
         _output = IBalancerPool(pool).onSwap(request, fromBalance, toBalance);
     }

@@ -140,7 +140,6 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
         swapCallBack.path = abi.encodePacked(fromToken, toToken, IUniV3Pair(pool).fee());
         swapCallBack.payer = msg.sender;
         swapCallBack.isQuote = 0;
-        IERC20(fromToken).universalApproveMax(pool, amountIn);
 
         (int256 amount0, int256 amount1) = IUniV3Pair(pool).swap(
             to,
@@ -177,32 +176,27 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
                 revert(ptr, 32)
             }
         } else if (data.isQuote == 0) {
-            pay(tokenIn, address(this), msg.sender, amountToPay);
+            pay(tokenIn, msg.sender, amountToPay);
         } else {
             revert("invalid isQuote");
         }
     }
 
     /// @param token The token to pay
-    /// @param payer The entity that must pay
     /// @param recipient The entity that will receive payment
     /// @param value The amount to pay
     function pay(
         address token,
-        address payer,
         address recipient,
         uint256 value
     ) internal {
         if (token == _ETH_ADDRESS_ && address(this).balance >= value) {
             // pay with WETH9
             IWETH(_WETH_ADDRESS_).deposit{ value: value }(); // wrap only what is needed to pay
-            IWETH(_WETH_ADDRESS_).transfer(recipient, value);
-        } else if (payer == address(this)) {
+            IERC20(_WETH_ADDRESS_).safeTransfer(recipient, value);
+        } else {
             // pay with tokens already in the contract (for the exact input multihop case)
             IERC20(token).safeTransfer(recipient, value);
-        } else {
-            // pull payment
-            IERC20(token).safeTransferFrom(payer, recipient, value);
         }
     }
 }

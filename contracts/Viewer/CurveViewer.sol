@@ -12,16 +12,16 @@ import "./intf/ICurvePoolInfoViewer.sol";
 import "hardhat/console.sol";
 
 contract CurvePoolInfo is ICurvePoolInfoViewer {
-    address public immutable registry;
+    address public immutable addrProvider;
 
-    constructor(address _registry) {
-        registry = _registry;
+    constructor(address _addrProvider) {
+        addrProvider = _addrProvider;
     }
 
     function getPoolInfo(address pool) public view override returns (CurvePoolInfo memory) {
         ICurve curvePool = ICurve(pool);
-        ICurveRegistry curveRegistry = ICurveRegistry(registry);
-        IERC20Metadata token = IERC20Metadata(curvePool.token());
+        ICurveRegistry curveRegistry = ICurveRegistry(addrProvider);
+        IERC20Metadata token = IERC20Metadata(curvePool.lp_token());
 
         return
             CurvePoolInfo({
@@ -38,10 +38,10 @@ contract CurvePoolInfo is ICurvePoolInfoViewer {
             });
     }
 
-    function pools(address _registry) external view returns (address[] memory) {
-        address[] memory _pools = new address[](ICurveRegistry(_registry).pool_count());
+    function pools(address _addrProvider) external view returns (address[] memory) {
+        address[] memory _pools = new address[](ICurveRegistry(_addrProvider).pool_count());
         for (uint256 i; i < _pools.length; i++) {
-            _pools[i] = ICurveRegistry(_registry).pool_list(i);
+            _pools[i] = ICurveRegistry(_addrProvider).pool_list(i);
         }
         return _pools;
     }

@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import { IERC20Metadata } from "../intf/IERC20Metadata.sol";
-import { IUniswapV2Pair, IUniswapV2Factory } from "../SmartRoute/intf/IUni.sol";
+import { IUniswapV2Pair, IUniswapV2Factory } from "../SmartRoute/intf/IUniV2.sol";
 
 import "./intf/IUniswapV2PoolInfoViewer.sol";
 

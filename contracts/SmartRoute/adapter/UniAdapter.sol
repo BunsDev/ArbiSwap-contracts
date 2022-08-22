@@ -3,7 +3,7 @@
 pragma solidity 0.8.15;
 import { ReentrancyGuard } from "../../lib/ReentrancyGuard.sol";
 import { IRouterAdapter } from "../intf/IRouterAdapter.sol";
-import { IUniswapV2Pair } from "../intf/IUni.sol";
+import { IUniswapV2Pair } from "../intf/IUniV2.sol";
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
 
