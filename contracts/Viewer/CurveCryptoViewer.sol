@@ -42,30 +42,30 @@ contract CurveCryptoViewer is ICurveCryptoPoolInfoViewer {
             }
         }
 
-        CurveCryptoPoolInfo memory curveCryptoPoolInfo;
-        curveCryptoPoolInfo.totalSupply = token.totalSupply();
-        curveCryptoPoolInfo.A = curvePool.A();
-        curveCryptoPoolInfo.gamma = curvePool.gamma();
-        curveCryptoPoolInfo.last_prices_timestamp = curvePool.last_prices_timestamp();
-        curveCryptoPoolInfo.block_timestamp = block.timestamp;
-        curveCryptoPoolInfo.ma_half_time = curvePool.ma_half_time();
-        curveCryptoPoolInfo.xcp_profit = curvePool.xcp_profit();
-        curveCryptoPoolInfo.xcp_profit_a = curvePool.xcp_profit_a();
-        curveCryptoPoolInfo.fee_gamma = curvePool.fee_gamma();
-        curveCryptoPoolInfo.fees = cryptoRegistry.get_fees(pool);
-        curveCryptoPoolInfo.adjustment_step = curvePool.adjustment_step();
-        curveCryptoPoolInfo.allowed_extra_profit = curvePool.allowed_extra_profit();
-        curveCryptoPoolInfo.price_oracle = priceOracles;
-        curveCryptoPoolInfo.price_scale = priceScales;
-        curveCryptoPoolInfo.last_price = lastPrices;
-        curveCryptoPoolInfo.virtual_price = curvePool.virtual_price();
-        curveCryptoPoolInfo.tokenBalances = cryptoRegistry.get_balances(pool);
-        curveCryptoPoolInfo.pool = address(token);
-        curveCryptoPoolInfo.tokenList = tokenList;
-        curveCryptoPoolInfo.decimals = token.decimals();
-        curveCryptoPoolInfo.name = token.name();
-        curveCryptoPoolInfo.symbol = token.symbol();
-
-        return curveCryptoPoolInfo;
+        return
+            CurveCryptoPoolInfo({
+                totalSupply: token.totalSupply(),
+                A: curvePool.A(),
+                gamma: curvePool.gamma(),
+                last_prices_timestamp: curvePool.last_prices_timestamp(),
+                block_timestamp: block.timestamp,
+                ma_half_time: curvePool.ma_half_time(),
+                xcp_profit: curvePool.xcp_profit(),
+                xcp_profit_a: curvePool.xcp_profit_a(),
+                fee_gamma: curvePool.fee_gamma(),
+                fees: cryptoRegistry.get_fees(pool),
+                adjustment_step: curvePool.adjustment_step(),
+                allowed_extra_profit: curvePool.allowed_extra_profit(),
+                price_oracle: priceOracles,
+                price_scale: priceScales,
+                last_price: lastPrices,
+                virtual_price: curvePool.virtual_price(),
+                tokenBalances: cryptoRegistry.get_balances(pool),
+                pool: address(token),
+                tokenList: tokenList,
+                decimals: token.decimals(),
+                name: token.name(),
+                symbol: token.symbol()
+            });
     }
 }
