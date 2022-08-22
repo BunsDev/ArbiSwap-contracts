@@ -111,7 +111,7 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
 
         SwapCallbackData memory swapCallBack;
         swapCallBack.path = abi.encodePacked(fromToken, toToken, IUniV3Pair(pool).fee());
-        swapCallBack.payer = address(0);
+        swapCallBack.payer = msg.sender;
         swapCallBack.isQuote = 1;
 
         try

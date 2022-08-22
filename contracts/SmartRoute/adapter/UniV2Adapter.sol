@@ -28,12 +28,13 @@ contract UniV2Adapter is IRouterAdapter {
         uint256 reserveInput;
         uint256 reserveOutput;
         address token0 = IUniswapV2Pair(pool).token0();
+        address token1 = IUniswapV2Pair(pool).token1();
         if (fromToken == token0) {
             (reserveInput, reserveOutput) = (reserve0, reserve1);
-            require(toToken == token0, "invalid token pair");
+            require(toToken == token1, "invalid token pair");
         } else if (toToken == token0) {
             (reserveInput, reserveOutput) = (reserve1, reserve0);
-            require(fromToken == token0, "invalid token pair");
+            require(fromToken == token1, "invalid token pair");
         } else {
             revert("invalid token pair");
         }

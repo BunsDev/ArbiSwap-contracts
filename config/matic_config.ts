@@ -27,8 +27,8 @@ const matic_config = {
   Approve: "0xE1650232Bbd47DafFCa39c4261521b8015aefBB7",
 
   //Adapter
-  UniV2Adapter: "0x8c41C6BafbF61F6F749Ef9D5CfF2d18399e2539a",
-  UniV3Adapter: "0x33dF7290ED46B714D45Fa21AF857799dA6eeb2b0",
+  UniV2Adapter: "0x8C34A04171DCf88F95d55403B3b411FfB563372d",
+  UniV3Adapter: "0xC926D433BD6B51E1ACcD7c1F1e7ce3101c03D3A0",
   CurveAdapter: "0xE3389f707D395AC2D4867E4091F6bD6e9Fe64b59",
   CurveCryptoAdapter: "0x383D35E81fb7eE06FEaa4deF44D63B8C257F6A54",
   BalancerAdapter: "0x08f5841F806a57d8eDcB168018c15f496bF27BF0",
@@ -280,6 +280,7 @@ const matic_config = {
     oKLAY: { address: "0x0a02d33031917d836bd7af02f9f7f6c74d67805f", decimals: 18 },
     oKSP: { address: "0x3d3b92fe0b4c26b74f8ff13a32dd764f4dfd8b51", decimals: 18 },
     oWBTC: { address: "0xe631ffaa2cf4d91aac3e9589a5d5b390c82a032e", decimals: 8 },
+    stMATIC: { address: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4", decimals: 18 },
   },
 
   BalancerPools: [

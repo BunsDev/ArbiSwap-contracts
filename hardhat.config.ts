@@ -51,7 +51,6 @@ function getChainConfig(chain: keyof typeof api_keys): NetworkUserConfig {
     },
     chainId: chainId,
     url: jsonRpcUrl,
-    gas: 3_000_000_000,
   };
 }
 
@@ -80,6 +79,11 @@ const config: HardhatUserConfig = {
         mnemonic,
       },
       chainId: chainIds.hardhat,
+      forking: {
+        // eslint-disable-next-line
+        enabled: true,
+        url: api_keys["polygon-mainnet"].jsonRpcUrl + "/" + api_keys["polygon-mainnet"].API_Key,
+      },
     },
     celo: getChainConfig("celo-mainnet"),
     aurora: getChainConfig("aurora-mainnet"),
