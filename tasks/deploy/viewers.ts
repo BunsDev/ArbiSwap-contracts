@@ -31,7 +31,7 @@ task("deploy:Viewers").setAction(async function (taskArguments: TaskArguments, {
 
   const curveViewerFactory: CurveViewer__factory = <CurveViewer__factory>await ethers.getContractFactory("CurveViewer");
   const curveViewer: CurveViewer = <CurveViewer>(
-    await curveViewerFactory.connect(signers[0]).deploy(config.CurveStableRegistry)
+    await curveViewerFactory.connect(signers[0]).deploy(config.CurveStableRegistry, config.CurveFactoryRegistry)
   );
   await curveViewer.deployed();
   console.log("CurveViewer deployed to: ", curveViewer.address);

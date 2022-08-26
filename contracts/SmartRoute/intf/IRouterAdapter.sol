@@ -17,7 +17,7 @@ interface Routing {
         address toToken,
         address pool,
         address to
-    ) external returns (uint256 _output);
+    ) external payable returns (uint256 _output);
 }
 
 abstract contract IRouterAdapter is ReentrancyGuard, Routing, Ownable {}

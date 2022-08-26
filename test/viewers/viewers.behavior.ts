@@ -12,7 +12,7 @@ export function fetchTokenViewer(): void {
 }
 
 export function fetchUniV3Viewer(): void {
-  it("UniV3Viewer fetch pool info of WMATIC-USDC fee 0.05%", async function () {
+  it("UniV3Viewer fetch posol info of WMATIC-USDC fee 0.05%", async function () {
     logger.log("UniV3Viewer:UniV3");
     logger.log(
       await this.uniV3Viewer.connect(this.signers.admin).getPoolInfo("0xA374094527e1673A86dE625aa59517c5dE346d32"),
@@ -21,11 +21,15 @@ export function fetchUniV3Viewer(): void {
 }
 
 export function fetchCurveViewer(): void {
-  it("CurveViewer fetch pool info of WMATIC-stMATIC", async function () {
-    logger.log("CurveViewer:Curve");
+  it("CurveViewer fetch pool info of amWBTC-renBTC", async function () {
+    logger.log("CurveViewer:Curve aPool");
     logger.log(
-      await this.curveViewer.connect(this.signers.admin).getPoolInfo("0xFb6FE7802bA9290ef8b00CA16Af4Bc26eb663a28"),
+      await this.curveViewer.connect(this.signers.admin).getPoolInfo("0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67"),
     );
+  });
+  it("CurveViewer fetch pools from main registry", async function () {
+    logger.log("CurveViewer:Main registry(aPool pools)");
+    logger.log(await this.curveViewer.connect(this.signers.admin).pools());
   });
 }
 

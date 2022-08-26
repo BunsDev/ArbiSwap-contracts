@@ -5,7 +5,7 @@ interface ICurvePoolInfoViewer {
     struct CurvePoolInfo {
         uint256 totalSupply;
         uint256 A;
-        uint256[] fees;
+        uint256[2] fees;
         uint256[] tokenBalances;
         address pool;
         address[] tokenList;
@@ -17,5 +17,5 @@ interface ICurvePoolInfoViewer {
 
     function getPoolInfo(address pool) external view returns (CurvePoolInfo memory);
 
-    function pools(address factory) external view returns (address[] memory);
+    function pools() external view returns (address[] memory);
 }

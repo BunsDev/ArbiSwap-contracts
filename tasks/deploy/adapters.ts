@@ -6,14 +6,12 @@ import { config } from "../../config/matic_config";
 import type {
   BalancerAdapter,
   CurveAdapter,
-  CurveCryptoAdapter,
   UniV2Adapter,
   UniV3Adapter,
 } from "../../src/types/SmartRoute/adapter/index";
 import type {
   BalancerAdapter__factory,
   CurveAdapter__factory,
-  CurveCryptoAdapter__factory,
   UniV2Adapter__factory,
   UniV3Adapter__factory,
 } from "../../src/types/factories/SmartRoute/adapter/index";
@@ -31,19 +29,12 @@ task("deploy:Adapters").setAction(async function (taskArguments: TaskArguments, 
     await ethers.getContractFactory("CurveAdapter")
   );
   const curveAdapter: CurveAdapter = <CurveAdapter>(
-    await curveAdapterFactory.connect(signers[0]).deploy(config.CurveStableRegistry)
+    await curveAdapterFactory
+      .connect(signers[0])
+      .deploy(config.WETH, config.CurveStableRegistry, config.CurveCryptoRegistry, config.CurveFactoryRegistry)
   );
   await curveAdapter.deployed();
   console.log("CurveAdapter deployed to: ", curveAdapter.address);
-
-  const curveCryptoAdapterFactory: CurveCryptoAdapter__factory = <CurveCryptoAdapter__factory>(
-    await ethers.getContractFactory("CurveCryptoAdapter")
-  );
-  const curveCryptoAdapter: CurveCryptoAdapter = <CurveCryptoAdapter>(
-    await curveCryptoAdapterFactory.connect(signers[0]).deploy(config.CurveCryptoRegistry)
-  );
-  await curveCryptoAdapter.deployed();
-  console.log("CurveCryptoAdapter deployed to: ", curveCryptoAdapter.address);
 
   const uniV2AdapterFactory: UniV2Adapter__factory = <UniV2Adapter__factory>(
     await ethers.getContractFactory("UniV2Adapter")

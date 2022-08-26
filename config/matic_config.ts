@@ -19,34 +19,37 @@ const matic_config = {
 
   //CurveRegistry
   CurveStableRegistry: "0x094d12e5b541784701fd8d65f11fc0598fbc6332",
-  CurveCryptoRegistry: "0x722272D36ef0Da72FF51c5A65Db7b870E2e8D4ee",
+  CurveCryptoRegistry: "0x47bB542B9dE58b970bA50c9dae444DDB4c16751a",
+  // get curve factory registry from exchange
+  CurveFactoryRegistry: "0x722272D36ef0Da72FF51c5A65Db7b870E2e8D4ee",
+
   //UniV3
   TickLens: "0xbfd8137f7d1516D3ea5cA83523914859ec47F573",
 
   //Approve
-  Approve: "0x5A93C90fBB99c897D0c73E28C36A32006EbD4De2",
+  Approve: "0x8d7732602e006212A2eD1d244b0ab5C41EC8D7D8",
 
   //Adapter
-  UniV2Adapter: "0x8C34A04171DCf88F95d55403B3b411FfB563372d",
-  UniV3Adapter: "0xC926D433BD6B51E1ACcD7c1F1e7ce3101c03D3A0",
-  CurveAdapter: "0xE3389f707D395AC2D4867E4091F6bD6e9Fe64b59",
-  CurveCryptoAdapter: "0x383D35E81fb7eE06FEaa4deF44D63B8C257F6A54",
-  BalancerAdapter: "0x08f5841F806a57d8eDcB168018c15f496bF27BF0",
+  UniV2Adapter: "0xd083c6fF3280cFb473B4f37913C4A0D68C06397a",
+  UniV3Adapter: "0x3f4b1dEA4E8D9693b63f33579af13800d8E5Fb75",
+  CurveAdapter: "0xdf7ba1982ff003a80A74CdC0eEf246bc2a3E5F32",
+  BalancerAdapter: "0x1CC390780132Fad16519661dA3FE53E8d9a008E6",
 
   //Viewer
-  UniV2Viewer: "0xBb1d41241eec1AB17A4076720D30496f4148c88a",
-  UniV3Viewer: "0x9711577F5f7F7162B8086567Ed7b0CcF58A68876",
-  CurveViewer: "0xEfbA9791DfDf14844a3Cb2b31F28365F8123193a",
-  CurveCryptoViewer: "0x10A4F4A39865b2c355Fb72460Cb3874e161122ac",
-  BalancerViewer: "0x988cD67a8bcd6749e55Dd5fEc0D56321de0885C4",
-  TokenViewer: "0xE5406aeb878a341656E8c6A2E16d0b07728F5977",
+  UniV2Viewer: "0xED5EB558fE902611f79E63D1A3A31ca39a88362D",
+  UniV3Viewer: "0xc75406f11cF2E638830f1f2822BC3ff12cAA0186",
+  CurveViewer: "0x416DEb7401bCb5CE1da7B7654505B29925EF7f17",
+  CurveCryptoViewer: "0x208dA73F71fE00387C3fe0c4D71b77b39a8D1c5D",
+  BalancerViewer: "0x6D591FF64297E7Cbb22C6523DF36FC399E72DDcf",
+  TokenViewer: "0xeD88594a23Be9f53E5958AEA54437A7719c1fb89",
 
   //Proxy
-  RouteProxy: "0xcC59a96DDBd08bDA63163b0C4046326796cBE56c",
-  ApproveProxy: "0xEa8dBE37B6a78Ed52C26583F124F1cBE90F26303",
+  RouteProxy: "0xd2C756b63D71534b987b1C790111C88e237BDeA6",
+  ApproveProxy: "0x464B10C0e91CFe9F79d5c55017B92f9f90590DA3",
 
   //Tokens
   Tokens: {
+    renBTC: { address: "0xDBf31dF14B66535aF65AaC99C32e9eA844e14501", decimals: 8 },
     MATIC: { address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", decimals: 18 },
     AAVE: { address: "0xd6df932a45c0f255f85145f286ea0b292b21c90b", decimals: 18 },
     MUST: { address: "0x9c78ee466d6cb57a4d01fd887d2b5dfb2d46288f", decimals: 18 },

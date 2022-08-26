@@ -106,11 +106,18 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
         address pool
     ) public override returns (uint256 _output) {
         require(amountIn > 0, "UniswapV3Library: INSUFFICIENT_INPUT_AMOUNT");
-
-        bool zeroForOne = fromToken < toToken;
+        address _fromToken;
+        address _toToken;
+        if (fromToken == _ETH_ADDRESS_) {
+            _fromToken = _WETH_ADDRESS_;
+        }
+        if (toToken == _ETH_ADDRESS_) {
+            _toToken = _WETH_ADDRESS_;
+        }
+        bool zeroForOne = _fromToken < _toToken;
 
         SwapCallbackData memory swapCallBack;
-        swapCallBack.path = abi.encodePacked(fromToken, toToken, IUniV3Pair(pool).fee());
+        swapCallBack.path = abi.encodePacked(_fromToken, _toToken, IUniV3Pair(pool).fee());
         swapCallBack.payer = msg.sender;
         swapCallBack.isQuote = 1;
 
@@ -133,11 +140,19 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
         address toToken,
         address pool,
         address to
-    ) external override returns (uint256 _output) {
-        bool zeroForOne = IUniV3Pair(pool).token0() == fromToken;
+    ) external payable override returns (uint256 _output) {
+        address _fromToken;
+        address _toToken;
+        if (fromToken == _ETH_ADDRESS_) {
+            _fromToken = _WETH_ADDRESS_;
+        }
+        if (toToken == _ETH_ADDRESS_) {
+            _toToken = _WETH_ADDRESS_;
+        }
+        bool zeroForOne = _fromToken < _toToken;
 
         SwapCallbackData memory swapCallBack;
-        swapCallBack.path = abi.encodePacked(fromToken, toToken, IUniV3Pair(pool).fee());
+        swapCallBack.path = abi.encodePacked(_fromToken, _toToken, IUniV3Pair(pool).fee());
         swapCallBack.payer = msg.sender;
         swapCallBack.isQuote = 0;
 
@@ -190,7 +205,7 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
         address recipient,
         uint256 value
     ) internal {
-        if (token == _ETH_ADDRESS_ && address(this).balance >= value) {
+        if (token == _WETH_ADDRESS_ && address(this).balance >= value) {
             // pay with WETH9
             IWETH(_WETH_ADDRESS_).deposit{ value: value }(); // wrap only what is needed to pay
             IERC20(_WETH_ADDRESS_).safeTransfer(recipient, value);

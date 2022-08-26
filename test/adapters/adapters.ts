@@ -3,13 +3,7 @@ import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signe
 import { ethers } from "hardhat";
 
 import type { Signers } from "../types";
-import {
-  quoteBalancerAdapter,
-  quoteCurveAdapter,
-  quoteCurveCryptoAdapter,
-  quoteUniV2Adapter,
-  quoteUniV3Adapter,
-} from "./adapters.behavior";
+import { quoteBalancerAdapter, quoteCurveAdapter, quoteUniV2Adapter, quoteUniV3Adapter } from "./adapters.behavior";
 import { deployAdaptersFixture } from "./adapters.fixtures";
 
 describe("Unit tests", function () {
@@ -24,19 +18,17 @@ describe("Unit tests", function () {
 
   describe("Adapters", function () {
     beforeEach(async function () {
-      const { balancerAdapter, curveAdapter, curveCryptoAdapter, uniV2Adapter, uniV3Adapter } = await this.loadFixture(
+      const { balancerAdapter, curveAdapter, uniV2Adapter, uniV3Adapter } = await this.loadFixture(
         deployAdaptersFixture,
       );
       this.balancerAdapter = balancerAdapter;
       this.curveAdapter = curveAdapter;
-      this.curveCryptoAdapter = curveCryptoAdapter;
       this.uniV2Adapter = uniV2Adapter;
       this.uniV3Adapter = uniV3Adapter;
     });
 
     quoteBalancerAdapter();
     quoteCurveAdapter();
-    quoteCurveCryptoAdapter();
     quoteUniV2Adapter();
     quoteUniV3Adapter();
   });

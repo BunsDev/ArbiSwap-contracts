@@ -21,36 +21,32 @@ export function quoteUniV3Adapter(): void {
 }
 
 export function quoteCurveAdapter(): void {
-  it("CurveAdapter getAmountOut WMATIC to stMATIC", async function () {
-    logger.log("CurveAdapter:Curve");
+  it("CurveAdapter getAmountOut WMATIC to stMATIC & getAmountOut amWETH to amUSDC", async function () {
+    logger.log("CurveAdapter:Curve WMATIC to stMATIC");
     logger.log(
       await this.curveAdapter
         .connect(this.signers.admin)
         .getAmountOut(
-          config.WETH,
+          config.Tokens.amWBTC.address,
           ethers.utils.parseUnits("1000", 18),
-          config.Tokens.stMATIC.address,
-          "0xFb6FE7802bA9290ef8b00CA16Af4Bc26eb663a28",
+          config.Tokens.renBTC.address,
+          "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67",
         ),
     );
-  });
-}
 
-export function quoteCurveCryptoAdapter(): void {
-  it("CurveCryptoAdapter getAmountOut WETH to USDC", async function () {
-    logger.log("CurveCryptoAdapter:Curve");
+    //test error
+    logger.log("CurveAdapter:Curve amWETH to amUSDC");
     logger.log(
-      await this.curveCryptoAdapter
+      await this.curveAdapter
         .connect(this.signers.admin)
         .getAmountOut(
-          config.Tokens.ETH.address,
+          config.Tokens.amWETH.address,
           ethers.utils.parseUnits("1000", 18),
-          config.Tokens.USDC.address,
-          "0x92215849c439E1f8612b6646060B4E3E5ef822cC",
+          config.Tokens.amUSDC.address,
+          "0x751B1e21756bDbc307CBcC5085c042a0e9AaEf36",
         ),
     );
   });
-  0;
 }
 export function quoteBalancerAdapter(): void {
   it("BalancerAdapter getAmountOut WMATIC to USDC", async function () {

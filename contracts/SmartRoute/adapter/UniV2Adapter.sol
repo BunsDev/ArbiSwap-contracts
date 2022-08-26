@@ -58,7 +58,7 @@ contract UniV2Adapter is IRouterAdapter {
         address toToken,
         address pool,
         address to
-    ) external override returns (uint256 _output) {
+    ) external payable override returns (uint256 _output) {
         _output = getAmountOut(fromToken, amountIn, toToken, pool);
         (uint256 amount0Out, uint256 amount1Out) = fromToken == IUniswapV2Pair(pool).token0()
             ? (uint256(0), _output)

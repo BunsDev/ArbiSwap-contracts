@@ -12,7 +12,7 @@ interface ICurveCryptoPoolInfoViewer {
         uint256 xcp_profit;
         uint256 xcp_profit_a;
         uint256 fee_gamma;
-        uint256[] fees;
+        uint256[4] fees;
         uint256 adjustment_step;
         uint256 allowed_extra_profit;
         uint256[] price_oracle;
@@ -29,5 +29,5 @@ interface ICurveCryptoPoolInfoViewer {
 
     function getPoolInfo(address pool) external view returns (CurveCryptoPoolInfo memory);
 
-    function pools(address factory) external view returns (address[] memory);
+    function pools() external view returns (address[] memory);
 }

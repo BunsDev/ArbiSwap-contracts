@@ -1,12 +1,6 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
-import type {
-  BalancerAdapter,
-  CurveAdapter,
-  CurveCryptoAdapter,
-  UniV2Adapter,
-  UniV3Adapter,
-} from "../src/types/SmartRoute/adapter/index";
+import type { BalancerAdapter, CurveAdapter, UniV2Adapter, UniV3Adapter } from "../src/types/SmartRoute/adapter/index";
 import type {
   BalancerViewer,
   CurveCryptoViewer,
@@ -22,7 +16,6 @@ declare module "mocha" {
   export interface Context {
     balancerAdapter: BalancerAdapter;
     curveAdapter: CurveAdapter;
-    curveCryptoAdapter: CurveCryptoAdapter;
     uniV2Adapter: UniV2Adapter;
     uniV3Adapter: UniV3Adapter;
     balancerViewer: BalancerViewer;

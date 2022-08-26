@@ -9,6 +9,7 @@ import { UniERC20 } from "../../lib/UniERC20.sol";
 
 contract BalancerAdapter is IRouterAdapter {
     using UniERC20 for IERC20;
+    address public constant _ETH_ADDRESS_ = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     function vault(address pool) public view returns (address) {
         return IBalancerPool(pool).getVault();
@@ -43,7 +44,7 @@ contract BalancerAdapter is IRouterAdapter {
         address toToken,
         address pool,
         address to
-    ) external override returns (uint256 _output) {
+    ) external payable override returns (uint256 _output) {
         IBalancerVault.SingleSwap memory singleswap;
         singleswap.poolId = IBalancerPool(pool).getPoolId();
         singleswap.kind = IBalancerVault.SwapKind.GIVEN_IN;
@@ -59,6 +60,8 @@ contract BalancerAdapter is IRouterAdapter {
 
         IERC20(fromToken).universalApproveMax(IBalancerPool(pool).getVault(), amountIn);
 
-        _output = IBalancerVault(IBalancerPool(pool).getVault()).swap(singleswap, fundManagement, 1, type(uint256).max);
+        _output = IBalancerVault(IBalancerPool(pool).getVault()).swap{
+            value: fromToken == _ETH_ADDRESS_ ? amountIn : 0
+        }(singleswap, fundManagement, 1, type(uint256).max);
     }
 }

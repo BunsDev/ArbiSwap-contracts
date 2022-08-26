@@ -469,19 +469,20 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
         // only ETH comes as from not WETH
         // ETH -> WETH address (wrapping)
         address from = fromToken;
-        if (fromToken == _ETH_ADDRESS_) {
-            IWETH(_WETH_ADDRESS_).deposit{ value: amountIn }();
-            from = _WETH_ADDRESS_;
-        }
-
-        address to = toToken == _ETH_ADDRESS_ ? _WETH_ADDRESS_ : toToken;
+        address to = toToken;
 
         if (poolEdition == 0) {
-            // uniV2, ... exchange is executed after token transfer
+            if (fromToken == _ETH_ADDRESS_) {
+                IWETH(_WETH_ADDRESS_).deposit{ value: amountIn }();
+                from = _WETH_ADDRESS_;
+            }
+            if (toToken == _ETH_ADDRESS_) {
+                to = _WETH_ADDRESS_;
+            }
+
             IERC20(from).safeTransfer(pool, amountIn);
         } else if (poolEdition == 1) {
-            // curve, dodov1, uniV3, balancer ... token transfer is executed in exchange function
-            IERC20(from).safeTransfer(adapter, amountIn);
+            IERC20(fromToken).uniTransfer(adapter, amountIn);
         } else {
             revert("Invalid poolEdition");
         }
