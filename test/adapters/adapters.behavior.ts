@@ -21,7 +21,7 @@ export function quoteUniV3Adapter(): void {
 }
 
 export function quoteCurveAdapter(): void {
-  it("CurveAdapter getAmountOut WMATIC to stMATIC & getAmountOut amWETH to amUSDC", async function () {
+  it("CurveAdapter getAmountOut WMATIC to stMATIC", async function () {
     logger.log("CurveAdapter:Curve WMATIC to stMATIC");
     logger.log(
       await this.curveAdapter
@@ -33,9 +33,11 @@ export function quoteCurveAdapter(): void {
           "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67",
         ),
     );
-
+  });
+  it("CurveAdapter getAmountOut amWETH to amUSDC", async function () {
     //test error
-    logger.log("CurveAdapter:Curve amWETH to amUSDC");
+    logger.log("CurveAdapter getAmountOut amWETH to amUSDC");
+
     logger.log(
       await this.curveAdapter
         .connect(this.signers.admin)

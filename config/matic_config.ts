@@ -27,7 +27,7 @@ const matic_config = {
   TickLens: "0xbfd8137f7d1516D3ea5cA83523914859ec47F573",
 
   //Approve
-  Approve: "0x8d7732602e006212A2eD1d244b0ab5C41EC8D7D8",
+  Approve: "0xBaAFd20A8F947E1fb6C62e6884DB1c507917508b",
 
   //Adapter
   UniV2Adapter: "0xd083c6fF3280cFb473B4f37913C4A0D68C06397a",
@@ -44,8 +44,8 @@ const matic_config = {
   TokenViewer: "0xeD88594a23Be9f53E5958AEA54437A7719c1fb89",
 
   //Proxy
-  RouteProxy: "0xd2C756b63D71534b987b1C790111C88e237BDeA6",
-  ApproveProxy: "0x464B10C0e91CFe9F79d5c55017B92f9f90590DA3",
+  RouteProxy: "0xB5abdB8Fb52cB33cfe8fa6f1Ff447DfBEA75708f",
+  ApproveProxy: "0xE8aD01189F6A77A69C6EA736a1e68957274d0049",
 
   //Tokens
   Tokens: {

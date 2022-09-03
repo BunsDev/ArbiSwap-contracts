@@ -108,6 +108,31 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
     }
 
     /**
+     * @dev This function estimates sequential swaps without spliting input amount (100%)
+     *
+     * A 100% [ UNI2 ] B [ CURVE] C
+     *
+     * @param fromToken for WETH, ETH, address(eee...), for ERC20, its own address
+     * @param amountIn input amount of fromToken
+     * @param toToken for WETH, ETH, address(eee...), for ERC20, its own address
+     * @param pathInfos Sequential swaps information
+     */
+    function getMultiHopSingleSwapOut(
+        address fromToken,
+        uint256 amountIn,
+        address toToken,
+        MultiAMMLib.Swap[] calldata pathInfos
+    ) public returns (uint256[] memory outputs) {
+        require(
+            pathInfos[0].fromToken == fromToken &&
+                pathInfos[0].amountIn == amountIn &&
+                pathInfos[pathInfos.length - 1].toToken == toToken,
+            "not same input"
+        );
+        outputs = _calcMultiHopSingleSwap(pathInfos);
+    }
+
+    /**
      * @dev This function executes the single swap with multiple pool paths which have the same input token and output token by spliting input amount
      *
      * A 50% [ UNI2 ] B
@@ -157,6 +182,33 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
         }
 
         emit OrderHistory(fromToken, toToken, msg.sender, amountIn, output);
+    }
+
+    /**
+     * @dev This function executes the single swap with multiple pool paths which have the same input token and output token by spliting input amount
+     *
+     * A 50% [ UNI2 ] B
+     *   30% [ CURVE]
+     *   20% [ UNI3 ]
+     *
+     * @param fromToken for WETH, ETH, address(eee...), for ERC20, its own address
+     * @param amountIn input amount of fromToken
+     * @param toToken for WETH, ETH, address(eee...), for ERC20, its own address
+     * @param weightPathInfo spliting input amount to multiple pools swap information
+     */
+    function getSingleHopMultiSwapOut(
+        address fromToken,
+        uint256 amountIn,
+        address toToken,
+        MultiAMMLib.WeightedSwap calldata weightPathInfo
+    ) public returns (uint256 output) {
+        require(
+            weightPathInfo.fromToken == fromToken &&
+                weightPathInfo.amountIn == amountIn &&
+                weightPathInfo.toToken == toToken,
+            "not same input"
+        );
+        output = _calcSingleHopMultiSwap(weightPathInfo);
     }
 
     /**
@@ -215,6 +267,32 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
     }
 
     /**
+     * @dev This function executes sequential single hop swaps which consists of multiple pool paths which have the same input token and output token by spliting input amount
+     *
+     * A 50% [ UNI3 ] B 60% [ CURVE] C
+     *   50% [ UNI2 ]   40% [ UNI3 ]
+     *
+     * @param fromToken for WETH, ETH, address(eee...), for ERC20, its own address
+     * @param amountIn input amount of fromToken
+     * @param toToken for WETH, ETH, address(eee...), for ERC20, its own address
+
+     */
+    function getMultiHopMultiSwapOut(
+        address fromToken,
+        uint256 amountIn,
+        address toToken,
+        MultiAMMLib.WeightedSwap[] calldata weightPathInfos
+    ) public returns (uint256[] memory outputs) {
+        require(
+            weightPathInfos[0].fromToken == fromToken &&
+                weightPathInfos[0].amountIn == amountIn &&
+                weightPathInfos[weightPathInfos.length - 1].toToken == toToken,
+            "not same input"
+        );
+        outputs = _calcMultiHopMultiSwap(weightPathInfos);
+    }
+
+    /**
      * @dev This function executes the multihop swap with multiple pool paths by spliting input amount it has no limit to compose any swaps
      *
      * A 60% [ UNI3 ] B 60% [ CURVE] C
@@ -263,6 +341,34 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
             IERC20(toToken).uniTransfer(linearWeightPathInfo.to, output);
         }
         emit OrderHistory(fromToken, toToken, msg.sender, amountIn, output);
+    }
+
+    /**
+     * @dev This function executes the multihop swap with multiple pool paths by spliting input amount it has no limit to compose any swaps
+     *
+     * A 60% [ UNI3 ] B 60% [ CURVE] C
+     *                  30% [ UNI3 ]
+     *                  10% [ UNI2 ]
+     *   40% [         UNI2        ]
+     *
+     * @param fromToken for WETH, ETH, address(eee...), for ERC20, its own address
+     * @param amountIn input amount of fromToken
+     * @param toToken for WETH, ETH, address(eee...), for ERC20, its own address
+     * @param linearWeightPathInfo linearly spliting input amount to multiple pools swap information with full composability
+     */
+    function getLinearSplitMultiHopMultiSwapOut(
+        address fromToken,
+        uint256 amountIn,
+        address toToken,
+        MultiAMMLib.LinearWeightedSwap calldata linearWeightPathInfo
+    ) public returns (uint256 output) {
+        require(
+            linearWeightPathInfo.amountIn == amountIn &&
+                linearWeightPathInfo.fromToken == fromToken &&
+                linearWeightPathInfo.toToken == toToken,
+            "not same input"
+        );
+        output = _calcLinearSplitMultiHopMultiSwap(linearWeightPathInfo);
     }
 
     /**
