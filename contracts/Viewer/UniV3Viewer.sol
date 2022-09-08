@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import "hardhat/console.sol";
 import { IUniV3Pair, IUniswapV3SwapCallback, ITickLens } from "../SmartRoute/intf/IUniV3.sol";
 import "./intf/IUniswapV3PoolInfoViewer.sol";
 
@@ -22,15 +23,9 @@ contract UniV3Viewer is IUniswapV3PoolInfoViewer {
         address[] memory tokenList = new address[](2);
         tokenList[0] = uniswapV3Pool.token0();
         tokenList[1] = uniswapV3Pool.token1();
-        (
-            uint160 sqrtPriceX96,
-            int24 tick,
-            uint16 observationIndex,
-            uint16 observationCardinality,
-            uint16 observationCardinalityNext,
-            uint8 feeProtocol,
-            bool unlocked
-        ) = uniswapV3Pool.slot0();
+        (uint160 sqrtPriceX96, int24 tick, , , , uint8 feeProtocol, bool unlocked) = uniswapV3Pool.slot0();
+        int24 tickSpacing = uniswapV3Pool.tickSpacing();
+        int16 wordPos = int16((tick / uniswapV3Pool.tickSpacing()) >> 8);
 
         return
             UniswapV3PoolInfo({
@@ -41,10 +36,10 @@ contract UniV3Viewer is IUniswapV3PoolInfoViewer {
                 liquidity: uniswapV3Pool.liquidity(),
                 fee: uniswapV3Pool.fee(),
                 tick: tick,
-                populatedTicks: ITickLens(tickLens).getPopulatedTicksInWord(pool, int16(tick >> 8)),
-                observationIndex: observationIndex,
-                observationCardinality: observationCardinality,
-                observationCardinalityNext: observationCardinalityNext,
+                tickSpacing: tickSpacing,
+                cheapPopulatedTicks: ITickLens(tickLens).getPopulatedTicksInWord(pool, wordPos - 1),
+                currentPopulatedTicks: ITickLens(tickLens).getPopulatedTicksInWord(pool, wordPos),
+                expensivePopulatedTicks: ITickLens(tickLens).getPopulatedTicksInWord(pool, wordPos + 1),
                 feeProtocol: feeProtocol,
                 unlocked: unlocked
             });

@@ -11,10 +11,10 @@ interface IUniswapV3PoolInfoViewer {
         uint128 liquidity;
         uint24 fee;
         int24 tick;
-        ITickLens.PopulatedTick[] populatedTicks;
-        uint16 observationIndex;
-        uint16 observationCardinality;
-        uint16 observationCardinalityNext;
+        int24 tickSpacing;
+        ITickLens.PopulatedTick[] cheapPopulatedTicks;
+        ITickLens.PopulatedTick[] currentPopulatedTicks;
+        ITickLens.PopulatedTick[] expensivePopulatedTicks;
         uint8 feeProtocol;
         bool unlocked;
     }

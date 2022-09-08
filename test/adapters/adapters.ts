@@ -27,9 +27,9 @@ describe("Unit tests", function () {
       this.uniV3Adapter = uniV3Adapter;
     });
 
-    quoteBalancerAdapter();
-    quoteCurveAdapter();
-    quoteUniV2Adapter();
-    quoteUniV3Adapter();
+    // quoteBalancerAdapter();
+    // quoteCurveAdapter();
+    // quoteUniV2Adapter();
+    // quoteUniV3Adapter();
   });
 });

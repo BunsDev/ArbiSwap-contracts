@@ -35,11 +35,11 @@ describe("Unit tests", function () {
       this.uniV3Viewer = uniV3Viewer;
     });
 
-    fetchBalancerViewer();
-    fetchCurveViewer();
-    fetchCurveCryptoViewer();
-    fetchUniV2Viewer();
+    // fetchBalancerViewer();
+    // fetchCurveViewer();
+    // fetchCurveCryptoViewer();
+    // fetchUniV2Viewer();
     fetchUniV3Viewer();
-    fetchTokenViewer();
+    // fetchTokenViewer();
   });
 });

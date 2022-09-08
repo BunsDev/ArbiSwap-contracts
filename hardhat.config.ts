@@ -125,7 +125,7 @@ const config: HardhatUserConfig = {
   },
   mocha: {
     parallel: true,
-    timeout: 40000,
+    timeout: 400000,
   },
 };
 
