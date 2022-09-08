@@ -31,7 +31,13 @@ task("deploy:Adapters").setAction(async function (taskArguments: TaskArguments, 
   const curveAdapter: CurveAdapter = <CurveAdapter>(
     await curveAdapterFactory
       .connect(signers[0])
-      .deploy(config.WETH, config.CurveStableRegistry, config.CurveCryptoRegistry, config.CurveFactoryRegistry)
+      .deploy(
+        config.WETH,
+        config.CurveStableRegistry,
+        config.CurveCryptoRegistry,
+        config.CurveFactoryRegistry,
+        config.CurveCryptoFactoryRegistry,
+      )
   );
   await curveAdapter.deployed();
   console.log("CurveAdapter deployed to: ", curveAdapter.address);

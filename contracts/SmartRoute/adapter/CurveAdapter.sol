@@ -1,8 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity 0.8.15;
+import "hardhat/console.sol";
 import { IRouterAdapter } from "../intf/IRouterAdapter.sol";
-import { ICurveProvider, ICurveRegistry, ICurveCryptoRegistry, ICurve, ICurveCrypto } from "../intf/ICurve.sol";
+import {
+    ICurveProvider,
+    ICurveRegistry,
+    ICurveCryptoRegistry,
+    ICurveFactoryRegistry,
+    ICurve,
+    ICurveCrypto
+} from "../intf/ICurve.sol";
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
 import { UniERC20 } from "../../lib/UniERC20.sol";
@@ -19,6 +27,7 @@ contract CurveAdapter is IRouterAdapter {
     address public immutable registry;
     address public immutable cryptoRegistry;
     address public immutable factoryRegistry;
+    address public immutable cryptoFactoryRegistry;
 
     mapping(address => address[2]) public baseCoins;
 
@@ -26,12 +35,14 @@ contract CurveAdapter is IRouterAdapter {
         address __WETH_ADDRESS_,
         address _registry,
         address _cryptoRegistry,
-        address _factoryRegistry
+        address _factoryRegistry,
+        address _cryptoFactoryRegistry
     ) {
         _WETH_ADDRESS_ = __WETH_ADDRESS_;
         registry = _registry;
         cryptoRegistry = _cryptoRegistry;
         factoryRegistry = _factoryRegistry;
+        cryptoFactoryRegistry = _cryptoFactoryRegistry;
     }
 
     function _getAmountOutCurve(
@@ -40,49 +51,29 @@ contract CurveAdapter is IRouterAdapter {
         uint256 amountIn,
         address toToken,
         address pool
-    )
-        internal
-        view
-        returns (
-            uint256 _output,
-            int128,
-            int128,
-            bool
-        )
-    {
+    ) internal view returns (uint256 _output) {
         require(amountIn > 0, "Curve: INSUFFICIENT_INPUT_AMOUNT");
 
         (int128 i, int128 j, bool isUnder) = ICurveRegistry(_registry).get_coin_indices(pool, fromToken, toToken);
-        if (isUnder) {
+        if (isUnder && (_registry == registry || ICurveRegistry(_registry).is_meta(pool))) {
             _output = ICurve(pool).get_dy_underlying(i, j, amountIn);
         } else {
             _output = ICurve(pool).get_dy(i, j, amountIn);
         }
-
-        return (_output, i, j, isUnder);
     }
 
     function _getAmountOutCryptoCurve(
+        address _registry,
         address fromToken,
         uint256 amountIn,
         address toToken,
         address pool
-    )
-        internal
-        view
-        returns (
-            uint256 _output,
-            uint256,
-            uint256
-        )
-    {
+    ) internal view returns (uint256 _output) {
         require(amountIn > 0, "Curve: INSUFFICIENT_INPUT_AMOUNT");
 
-        (uint256 i, uint256 j) = ICurveCryptoRegistry(cryptoRegistry).get_coin_indices(pool, fromToken, toToken);
+        (uint256 i, uint256 j) = ICurveCryptoRegistry(_registry).get_coin_indices(pool, fromToken, toToken);
 
         _output = ICurveCrypto(pool).get_dy(i, j, amountIn);
-
-        return (_output, i, j);
     }
 
     function getAmountOut(
@@ -90,17 +81,33 @@ contract CurveAdapter is IRouterAdapter {
         uint256 amountIn,
         address toToken,
         address pool
-    ) public override returns (uint256 _output) {
-        if (ICurveCryptoRegistry(cryptoRegistry).get_lp_token(pool) != address(0)) {
-            (_output, , ) = _getAmountOutCryptoCurve(fromToken, amountIn, toToken, pool);
+    ) public view override returns (uint256 _output) {
+        if (ICurveRegistry(registry).get_lp_token(pool) != address(0)) {
+            // console.log("get_lp_token registry result %s", ICurveRegistry(registry).get_lp_token(pool));
+            _output = _getAmountOutCurve(registry, fromToken, amountIn, toToken, pool);
         } else {
-            (_output, , , ) = _getAmountOutCurve(
-                (ICurveRegistry(registry).get_lp_token(pool) == address(0)) ? factoryRegistry : registry,
-                fromToken,
-                amountIn,
-                toToken,
-                pool
-            );
+            if (ICurveFactoryRegistry(factoryRegistry).get_coins(pool)[0] != address(0)) {
+                // console.log(
+                //     "get_coins factory registry result %s",
+                //     ICurveFactoryRegistry(factoryRegistry).get_coins(pool)[0]
+                // );
+
+                _output = _getAmountOutCurve(factoryRegistry, fromToken, amountIn, toToken, pool);
+            } else {
+                // console.log(
+                //     "get_lp_token crypto registry result %s",
+                //     ICurveCryptoRegistry(cryptoRegistry).get_lp_token(pool)
+                // );
+                _output = _getAmountOutCryptoCurve(
+                    ICurveCryptoRegistry(cryptoRegistry).get_lp_token(pool) != address(0)
+                        ? cryptoRegistry
+                        : cryptoFactoryRegistry,
+                    fromToken,
+                    amountIn,
+                    toToken,
+                    pool
+                );
+            }
         }
     }
 
@@ -136,6 +143,7 @@ contract CurveAdapter is IRouterAdapter {
     }
 
     function _swapExactInCryptoCurve(
+        address _registry,
         address fromToken,
         uint256 amountIn,
         address toToken,
@@ -151,7 +159,7 @@ contract CurveAdapter is IRouterAdapter {
             _toToken = _WETH_ADDRESS_;
         }
 
-        (uint256 i, uint256 j) = ICurveCryptoRegistry(cryptoRegistry).get_coin_indices(pool, fromToken, toToken);
+        (uint256 i, uint256 j) = ICurveCryptoRegistry(_registry).get_coin_indices(pool, fromToken, toToken);
         uint256 ethAmount;
         if (fromToken == _ETH_ADDRESS_) {
             ethAmount = amountIn;
@@ -171,15 +179,22 @@ contract CurveAdapter is IRouterAdapter {
         address to
     ) external payable override returns (uint256 _output) {
         IERC20(fromToken).universalApproveMax(pool, amountIn);
-
-        if (ICurveCryptoRegistry(cryptoRegistry).get_lp_token(pool) != address(0)) {
-            _swapExactInCryptoCurve(fromToken, amountIn, toToken, pool);
+        if (ICurveRegistry(registry).get_lp_token(pool) != address(0)) {
+            _swapExactInCurve(registry, fromToken, amountIn, toToken, pool);
         } else {
-            address _registry = registry;
-            if (ICurveRegistry(_registry).get_lp_token(pool) == address(0)) {
-                _registry = factoryRegistry;
+            if (ICurveFactoryRegistry(factoryRegistry).get_coins(pool)[0] != address(0)) {
+                _swapExactInCurve(factoryRegistry, fromToken, amountIn, toToken, pool);
+            } else {
+                _swapExactInCryptoCurve(
+                    ICurveCryptoRegistry(cryptoRegistry).get_lp_token(pool) != address(0)
+                        ? cryptoRegistry
+                        : cryptoFactoryRegistry,
+                    fromToken,
+                    amountIn,
+                    toToken,
+                    pool
+                );
             }
-            _swapExactInCurve(_registry, fromToken, amountIn, toToken, pool);
         }
         _output = IERC20(toToken).uniBalanceOf(address(this));
 

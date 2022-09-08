@@ -12,7 +12,7 @@ export function quoteUniV3Adapter(): void {
         .connect(this.signers.admin)
         .getAmountOut(
           config.WETH,
-          ethers.utils.parseUnits("1000", 18),
+          ethers.utils.parseUnits("1", 18),
           config.Tokens.USDC.address,
           "0xA374094527e1673A86dE625aa59517c5dE346d32",
         ),
@@ -21,8 +21,8 @@ export function quoteUniV3Adapter(): void {
 }
 
 export function quoteCurveAdapter(): void {
-  it("CurveAdapter getAmountOut WMATIC to stMATIC", async function () {
-    logger.log("CurveAdapter:Curve WMATIC to stMATIC");
+  it("CurveAdapter getAmountOut amWBTC to renBTC", async function () {
+    logger.log("CurveAdapter:ren Curve amWBTC to renBTC");
     logger.log(
       await this.curveAdapter
         .connect(this.signers.admin)
@@ -34,9 +34,54 @@ export function quoteCurveAdapter(): void {
         ),
     );
   });
-  it("CurveAdapter getAmountOut amWETH to amUSDC", async function () {
+
+  it("CurveAdapter getAmountOut amDAI to amUSDT", async function () {
+    logger.log("CurveAdapter: aave USD Curve amDAI to amUSDT");
+    logger.log(
+      await this.curveAdapter
+        .connect(this.signers.admin)
+        .getAmountOut(
+          config.Tokens.amDAI.address,
+          ethers.utils.parseUnits("1000", 18),
+          config.Tokens.amUSDT.address,
+          "0x445FE580eF8d70FF569aB36e80c647af338db351",
+        ),
+    );
+  });
+
+  it("CurveAdapter getAmountOut axlUSDC to USDC", async function () {
+    logger.log("CurveAdapter: USD Factory Curve axlUSDC to USDC");
+    logger.log(
+      await this.curveAdapter
+        .connect(this.signers.admin)
+        .getAmountOut(
+          config.Tokens.axlUSDC.address,
+          ethers.utils.parseUnits("1000", 18),
+          config.Tokens.USDC.address,
+          "0xfBA3b7Bb043415035220b1c44FB4756434639392",
+        ),
+    );
+  });
+
+  it("CurveAdapter getAmountOut stMatic to Matic", async function () {
     //test error
-    logger.log("CurveAdapter getAmountOut amWETH to amUSDC");
+    logger.log("CurveAdapter: Crypto Factory Curve stMatic to Matic");
+
+    logger.log(
+      await this.curveAdapter
+        .connect(this.signers.admin)
+        .getAmountOut(
+          config.Tokens.stMATIC.address,
+          ethers.utils.parseUnits("1000", 18),
+          config.Tokens.WMATIC.address,
+          "0xFb6FE7802bA9290ef8b00CA16Af4Bc26eb663a28",
+        ),
+    );
+  });
+
+  it("CurveAdapter getAmountOut amWETH to am3CRV", async function () {
+    //test error
+    logger.log("CurveAdapter: Crypto V2 Curve amWETH to am3CRV");
 
     logger.log(
       await this.curveAdapter
@@ -44,8 +89,8 @@ export function quoteCurveAdapter(): void {
         .getAmountOut(
           config.Tokens.amWETH.address,
           ethers.utils.parseUnits("1000", 18),
-          config.Tokens.amUSDC.address,
-          "0x751B1e21756bDbc307CBcC5085c042a0e9AaEf36",
+          config.Tokens.am3CRV.address,
+          "0x92215849c439E1f8612b6646060B4E3E5ef822cC",
         ),
     );
   });

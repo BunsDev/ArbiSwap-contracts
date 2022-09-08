@@ -40,7 +40,9 @@ task("deploy:Viewers").setAction(async function (taskArguments: TaskArguments, {
     await ethers.getContractFactory("CurveCryptoViewer")
   );
   const curveCryptoViewer: CurveCryptoViewer = <CurveCryptoViewer>(
-    await curveCryptoViewerFactory.connect(signers[0]).deploy(config.CurveCryptoRegistry)
+    await curveCryptoViewerFactory
+      .connect(signers[0])
+      .deploy(config.CurveCryptoRegistry, config.CurveCryptoFactoryRegistry)
   );
   await curveCryptoViewer.deployed();
   console.log("CurveCryptoViewer deployed to: ", curveCryptoViewer.address);

@@ -98,6 +98,37 @@ interface ICurveFactoryRegistry {
     function pool_count() external view returns (uint256);
 
     function get_fees(address _pool) external view returns (uint256, uint256);
+
+    function get_coin_indices(
+        address _pool,
+        address _srcToken,
+        address _dstToken
+    )
+        external
+        view
+        returns (
+            int128,
+            int128,
+            bool
+        );
+}
+
+interface ICurveCryptoFactoryRegistry {
+    function get_n_coins(address _pool) external view returns (uint256);
+
+    function get_coins(address _pool) external view returns (address[2] memory);
+
+    function get_balances(address _pool) external view returns (uint256[2] memory);
+
+    function pool_list(uint256 idx) external view returns (address);
+
+    function pool_count() external view returns (uint256);
+
+    function get_coin_indices(
+        address _pool,
+        address _srcToken,
+        address _dstToken
+    ) external view returns (uint256, uint256);
 }
 
 interface ICurve {

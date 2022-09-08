@@ -81,6 +81,7 @@ const config: HardhatUserConfig = {
       chainId: chainIds.hardhat,
       forking: {
         // eslint-disable-next-line
+
         enabled: true,
         url: api_keys["polygon-mainnet"].jsonRpcUrl + "/" + api_keys["polygon-mainnet"].API_Key,
       },
@@ -121,6 +122,10 @@ const config: HardhatUserConfig = {
   typechain: {
     outDir: "src/types",
     target: "ethers-v5",
+  },
+  mocha: {
+    parallel: true,
+    timeout: 40000,
   },
 };
 

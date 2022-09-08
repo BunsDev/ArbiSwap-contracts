@@ -22,27 +22,45 @@ export function fetchUniV3Viewer(): void {
 
 export function fetchCurveViewer(): void {
   it("CurveViewer fetch pool info of amWBTC-renBTC", async function () {
-    logger.log("CurveViewer:Curve aPool");
+    logger.log("CurveViewer: ren Curve");
     logger.log(
       await this.curveViewer.connect(this.signers.admin).getPoolInfo("0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67"),
     );
   });
-  it("CurveViewer fetch pools from main registry", async function () {
-    logger.log("CurveViewer:Main registry(aPool pools)");
-    logger.log(await this.curveViewer.connect(this.signers.admin).pools());
+
+  it("CurveViewer fetch pool info of amDAI-amUSDT", async function () {
+    logger.log("CurveViewer: aave USD Curve");
+    logger.log(
+      await this.curveViewer.connect(this.signers.admin).getPoolInfo("0x445FE580eF8d70FF569aB36e80c647af338db351"),
+    );
+  });
+
+  it("CurveViewer fetch pool info of axlUSDC-USDC", async function () {
+    logger.log("CurveViewer: USD Factory Curve");
+    logger.log(
+      await this.curveViewer.connect(this.signers.admin).getPoolInfo("0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67"),
+    );
   });
 }
 
 export function fetchCurveCryptoViewer(): void {
-  it("CurveCryptoViewer fetch pool info of DAI-USDC-USDT-WBTC-WETH", async function () {
-    logger.log("CurveCryptoViewer:Curve");
+  it("CurveCryptoViewer fetch pool info of (DAI-USDC-USDT)-WBTC-WETH", async function () {
+    logger.log("CurveCryptoViewer:Crypto V2 Curve");
     logger.log(
       await this.curveCryptoViewer
         .connect(this.signers.admin)
         .getPoolInfo("0x92215849c439E1f8612b6646060B4E3E5ef822cC"),
     );
   });
-  0;
+
+  it("CurveCryptoViewer fetch pool info of stMatic-Matic", async function () {
+    logger.log("CurveCryptoViewer:Crypto Factory Curve");
+    logger.log(
+      await this.curveCryptoViewer
+        .connect(this.signers.admin)
+        .getPoolInfo("0xFb6FE7802bA9290ef8b00CA16Af4Bc26eb663a28"),
+    );
+  });
 }
 export function fetchBalancerViewer(): void {
   it("BalancerViewer fetch pool info of WMATIC-USDC", async function () {

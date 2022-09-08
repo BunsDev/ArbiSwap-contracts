@@ -21,8 +21,10 @@ const matic_config = {
   CurveStableRegistry: "0x094d12e5b541784701fd8d65f11fc0598fbc6332",
   CurveCryptoRegistry: "0x47bB542B9dE58b970bA50c9dae444DDB4c16751a",
   // get curve factory registry from exchange
+  // registry -> only factory ele!=address(0) at idx=0
   CurveFactoryRegistry: "0x722272D36ef0Da72FF51c5A65Db7b870E2e8D4ee",
-
+  // 2 coins
+  CurveCryptoFactoryRegistry: "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
   //UniV3
   TickLens: "0xbfd8137f7d1516D3ea5cA83523914859ec47F573",
 
@@ -32,14 +34,14 @@ const matic_config = {
   //Adapter
   UniV2Adapter: "0xd083c6fF3280cFb473B4f37913C4A0D68C06397a",
   UniV3Adapter: "0x3f4b1dEA4E8D9693b63f33579af13800d8E5Fb75",
-  CurveAdapter: "0xdf7ba1982ff003a80A74CdC0eEf246bc2a3E5F32",
+  CurveAdapter: "0x78A34554406d5E2fd2B422b15679a26cfec2E01b",
   BalancerAdapter: "0x1CC390780132Fad16519661dA3FE53E8d9a008E6",
 
   //Viewer
   UniV2Viewer: "0xED5EB558fE902611f79E63D1A3A31ca39a88362D",
   UniV3Viewer: "0xc75406f11cF2E638830f1f2822BC3ff12cAA0186",
   CurveViewer: "0x416DEb7401bCb5CE1da7B7654505B29925EF7f17",
-  CurveCryptoViewer: "0x208dA73F71fE00387C3fe0c4D71b77b39a8D1c5D",
+  CurveCryptoViewer: "0x44e0CF4e29583EE0027E0a9A45662B629Cd8b240",
   BalancerViewer: "0x6D591FF64297E7Cbb22C6523DF36FC399E72DDcf",
   TokenViewer: "0xeD88594a23Be9f53E5958AEA54437A7719c1fb89",
 
@@ -284,6 +286,8 @@ const matic_config = {
     oKSP: { address: "0x3d3b92fe0b4c26b74f8ff13a32dd764f4dfd8b51", decimals: 18 },
     oWBTC: { address: "0xe631ffaa2cf4d91aac3e9589a5d5b390c82a032e", decimals: 8 },
     stMATIC: { address: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4", decimals: 18 },
+    axlUSDC: { address: "0x750e4C4984a9e0f12978eA6742Bc1c5D248f40ed", decimals: 18 },
+    am3CRV: { address: "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171", decimals: 18 },
   },
 
   BalancerPools: [
