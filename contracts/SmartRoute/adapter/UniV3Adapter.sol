@@ -5,6 +5,7 @@ import { ReentrancyGuard } from "../../lib/ReentrancyGuard.sol";
 import { IRouterAdapter } from "../intf/IRouterAdapter.sol";
 import { IWETH } from "../../intf/IWETH.sol";
 import { IUniV3Pair, IUniswapV3SwapCallback } from "../intf/IUniV3.sol";
+import { PoolTicksCounter } from "../../lib/PoolTicksCounter.sol";
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
 import { SafeCast } from "../../lib/SafeCast.sol";
@@ -17,24 +18,22 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
     using SafeCast for int256;
     using UniERC20 for IERC20;
     using SafeERC20 for IERC20;
+    using PoolTicksCounter for IUniV3Pair;
     bytes32 internal constant POOL_INIT_CODE_HASH = 0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54;
     /// @dev The minimum value that can be returned from SqrtRatioAtTick.
     uint160 public constant MIN_SQRT_RATIO = 4295128739;
     /// @dev The maximum value that can be returned from SqrtRatioAtTick.
     uint160 public constant MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342;
 
-    address public immutable _Factory_;
     address payable public immutable _WETH_ADDRESS_;
     address public constant _ETH_ADDRESS_ = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
-    constructor(address payable __WETH_ADDRESS_, address _factory) {
+    constructor(address payable __WETH_ADDRESS_) {
         _WETH_ADDRESS_ = __WETH_ADDRESS_;
-        _Factory_ = _factory;
     }
 
     struct SwapCallbackData {
         bytes path;
-        address payer;
         uint256 isQuote;
     }
 
@@ -44,6 +43,7 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
     /// @param fee fee
     /// @return pool The contract address of the V3 pool
     function computeAddress(
+        address _factory,
         address token0,
         address token1,
         uint24 fee
@@ -55,7 +55,7 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
                     keccak256(
                         abi.encodePacked(
                             hex"ff",
-                            _Factory_,
+                            _factory,
                             keccak256(abi.encode(token0, token1, fee)),
                             POOL_INIT_CODE_HASH
                         )
@@ -71,28 +71,61 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
     /// @param fee fee
     /// @return pool The V3 pool contract address
     function verifyCallback(
+        address _factory,
         address tokenA,
         address tokenB,
         uint24 fee
     ) internal view returns (address pool) {
         if (tokenA < tokenB) {
-            pool = computeAddress(tokenA, tokenB, fee);
+            pool = computeAddress(_factory, tokenA, tokenB, fee);
         } else {
-            pool = computeAddress(tokenB, tokenA, fee);
+            pool = computeAddress(_factory, tokenB, tokenA, fee);
         }
         require(msg.sender == pool);
     }
 
     /// @dev Parses a revert reason that should contain the numeric quote
-    function parseRevertReason(bytes memory reason) private pure returns (uint256) {
-        if (reason.length != 32) {
+    function parseRevertReason(bytes memory reason)
+        private
+        pure
+        returns (
+            uint256 amount,
+            uint160 sqrtPriceX96After,
+            int24 tickAfter
+        )
+    {
+        if (reason.length != 96) {
             if (reason.length < 68) revert("Unexpected error");
             assembly {
                 reason := add(reason, 0x04)
             }
             revert(abi.decode(reason, (string)));
         }
-        return abi.decode(reason, (uint256));
+        return abi.decode(reason, (uint256, uint160, int24));
+    }
+
+    function handleRevert(
+        bytes memory reason,
+        IUniV3Pair pool,
+        uint256 gasEstimate
+    )
+        private
+        view
+        returns (
+            uint256 amount,
+            uint160 sqrtPriceX96After,
+            uint32 initializedTicksCrossed,
+            uint256
+        )
+    {
+        int24 tickBefore;
+        int24 tickAfter;
+        (, tickBefore, , , , , ) = pool.slot0();
+        (amount, sqrtPriceX96After, tickAfter) = parseRevertReason(reason);
+
+        initializedTicksCrossed = pool.countInitializedTicksCrossed(tickBefore, tickAfter);
+
+        return (amount, sqrtPriceX96After, initializedTicksCrossed, gasEstimate);
     }
 
     function factory(address pool) public view returns (address) {
@@ -117,8 +150,7 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
         bool zeroForOne = _fromToken < _toToken;
 
         SwapCallbackData memory swapCallBack;
-        swapCallBack.path = abi.encodePacked(_fromToken, _toToken, IUniV3Pair(pool).fee());
-        swapCallBack.payer = msg.sender;
+        swapCallBack.path = abi.encodePacked(this.factory(pool), _fromToken, _toToken, IUniV3Pair(pool).fee());
         swapCallBack.isQuote = 1;
 
         try
@@ -130,7 +162,7 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
                 abi.encode(swapCallBack)
             )
         {} catch (bytes memory reason) {
-            return parseRevertReason(reason);
+            (_output, , ) = parseRevertReason(reason);
         }
     }
 
@@ -152,8 +184,7 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
         bool zeroForOne = _fromToken < _toToken;
 
         SwapCallbackData memory swapCallBack;
-        swapCallBack.path = abi.encodePacked(_fromToken, _toToken, IUniV3Pair(pool).fee());
-        swapCallBack.payer = msg.sender;
+        swapCallBack.path = abi.encodePacked(this.factory(pool), _fromToken, _toToken, IUniV3Pair(pool).fee());
         swapCallBack.isQuote = 0;
 
         (int256 amount0, int256 amount1) = IUniV3Pair(pool).swap(
@@ -175,9 +206,13 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
     ) external override {
         require(amount0Delta > 0 || amount1Delta > 0); // swaps entirely within 0-liquidity regions are not supported
         SwapCallbackData memory data = abi.decode(_data, (SwapCallbackData));
-        (address tokenIn, address tokenOut, uint24 fee) = abi.decode(data.path, (address, address, uint24));
+        (address _factory, address tokenIn, address tokenOut, uint24 fee) = abi.decode(
+            data.path,
+            (address, address, address, uint24)
+        );
 
-        verifyCallback(tokenIn, tokenOut, fee);
+        address pool = verifyCallback(_factory, tokenIn, tokenOut, fee);
+        (uint160 sqrtPriceX96After, int24 tickAfter, , , , , ) = IUniV3Pair(pool).slot0();
 
         (bool isExactInput, uint256 amountToPay, uint256 amountReceived) = amount0Delta > 0
             ? (tokenIn < tokenOut, uint256(amount0Delta), uint256(-amount1Delta))
@@ -188,7 +223,9 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
             assembly {
                 let ptr := mload(0x40)
                 mstore(ptr, amountReceived)
-                revert(ptr, 32)
+                mstore(add(ptr, 0x20), sqrtPriceX96After)
+                mstore(add(ptr, 0x40), tickAfter)
+                revert(ptr, 96)
             }
         } else if (data.isQuote == 0) {
             pay(tokenIn, msg.sender, amountToPay);

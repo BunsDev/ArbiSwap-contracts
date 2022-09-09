@@ -39,7 +39,7 @@ describe("Unit tests", function () {
     // fetchCurveViewer();
     // fetchCurveCryptoViewer();
     // fetchUniV2Viewer();
-    fetchUniV3Viewer();
+    // fetchUniV3Viewer();
     // fetchTokenViewer();
   });
 });

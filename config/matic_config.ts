@@ -28,12 +28,13 @@ const matic_config = {
   //UniV3
   TickLens: "0xbfd8137f7d1516D3ea5cA83523914859ec47F573",
 
+  //Should deploy contracts below
   //Approve
   Approve: "0xBaAFd20A8F947E1fb6C62e6884DB1c507917508b",
 
   //Adapter
   UniV2Adapter: "0xd083c6fF3280cFb473B4f37913C4A0D68C06397a",
-  UniV3Adapter: "0x3f4b1dEA4E8D9693b63f33579af13800d8E5Fb75",
+  UniV3Adapter: "0xe7A10372A6E422dbd01D19978a63fc1baA6De590",
   CurveAdapter: "0x78A34554406d5E2fd2B422b15679a26cfec2E01b",
   BalancerAdapter: "0x1CC390780132Fad16519661dA3FE53E8d9a008E6",
 
