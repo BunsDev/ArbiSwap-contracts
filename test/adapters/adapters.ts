@@ -30,6 +30,6 @@ describe("Unit tests", function () {
     // quoteBalancerAdapter();
     // quoteCurveAdapter();
     // quoteUniV2Adapter();
-    quoteUniV3Adapter();
+    // quoteUniV3Adapter();
   });
 });

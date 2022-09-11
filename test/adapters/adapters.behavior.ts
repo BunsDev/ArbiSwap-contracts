@@ -22,13 +22,13 @@ export function quoteUniV3Adapter(): void {
 
 export function quoteCurveAdapter(): void {
   it("CurveAdapter getAmountOut amWBTC to renBTC", async function () {
-    logger.log("CurveAdapter:ren Curve amWBTC to renBTC");
+    logger.log("CurveAdapter: ren Curve amWBTC to renBTC");
     logger.log(
       await this.curveAdapter
         .connect(this.signers.admin)
         .getAmountOut(
           config.Tokens.amWBTC.address,
-          ethers.utils.parseUnits("1000", 18),
+          ethers.utils.parseUnits("1", 18),
           config.Tokens.renBTC.address,
           "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67",
         ),

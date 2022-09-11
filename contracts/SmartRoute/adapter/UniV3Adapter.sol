@@ -11,6 +11,7 @@ import { SafeMath } from "../../lib/SafeMath.sol";
 import { SafeCast } from "../../lib/SafeCast.sol";
 import { UniERC20 } from "../../lib/UniERC20.sol";
 import { SafeERC20 } from "../../lib/SafeERC20.sol";
+import "hardhat/console.sol";
 
 contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
     using SafeMath for uint256;
@@ -152,6 +153,11 @@ contract UniV3Adapter is IRouterAdapter, IUniswapV3SwapCallback {
         SwapCallbackData memory swapCallBack;
         swapCallBack.path = abi.encodePacked(this.factory(pool), _fromToken, _toToken, IUniV3Pair(pool).fee());
         swapCallBack.isQuote = 1;
+
+        console.log("In UniV3");
+        console.log(fromToken);
+        console.log(toToken);
+        console.log(amountIn);
 
         try
             IUniV3Pair(pool).swap(

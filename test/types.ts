@@ -1,6 +1,7 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
 import type { BalancerAdapter, CurveAdapter, UniV2Adapter, UniV3Adapter } from "../src/types/SmartRoute/adapter/index";
+import type { RouteProxy } from "../src/types/SmartRoute/proxies/index";
 import type {
   BalancerViewer,
   CurveCryptoViewer,
@@ -24,6 +25,8 @@ declare module "mocha" {
     uniV2Viewer: UniV2Viewer;
     uniV3Viewer: UniV3Viewer;
     tokenViewer: TokenViewer;
+    routeProxy: RouteProxy;
+
     loadFixture: <T>(fixture: Fixture<T>) => Promise<T>;
     signers: Signers;
   }

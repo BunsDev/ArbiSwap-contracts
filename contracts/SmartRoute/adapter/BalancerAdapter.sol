@@ -6,6 +6,7 @@ import { IBalancerVault, IBalancerPool, IBalancerRegistry } from "../intf/IBalan
 import { IERC20 } from "../../intf/IERC20.sol";
 import { FixedPoint } from "../../lib/FixedPoint.sol";
 import { UniERC20 } from "../../lib/UniERC20.sol";
+import "hardhat/console.sol";
 
 contract BalancerAdapter is IRouterAdapter {
     using UniERC20 for IERC20;
@@ -22,6 +23,11 @@ contract BalancerAdapter is IRouterAdapter {
         address pool
     ) public override returns (uint256 _output) {
         bytes32 poolId = IBalancerPool(pool).getPoolId();
+
+        console.log("In Balancer");
+        console.log(fromToken);
+        console.log(toToken);
+        console.log(amountIn);
 
         IBalancerVault _vault = IBalancerVault(IBalancerPool(pool).getVault());
 

@@ -1,4 +1,5 @@
 const matic_config = {
+  coin: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
   //WETH(WMATIC)
   WETH: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
 
@@ -30,7 +31,7 @@ const matic_config = {
 
   //Should deploy contracts below
   //Approve
-  Approve: "0xBaAFd20A8F947E1fb6C62e6884DB1c507917508b",
+  Approve: "0xd50C8fAc46927d2a9B9aca747Cc5659746F43Fa5",
 
   //Adapter
   UniV2Adapter: "0xd083c6fF3280cFb473B4f37913C4A0D68C06397a",
@@ -47,8 +48,8 @@ const matic_config = {
   TokenViewer: "0xeD88594a23Be9f53E5958AEA54437A7719c1fb89",
 
   //Proxy
-  RouteProxy: "0xB5abdB8Fb52cB33cfe8fa6f1Ff447DfBEA75708f",
-  ApproveProxy: "0xE8aD01189F6A77A69C6EA736a1e68957274d0049",
+  RouteProxy: "0xc6f9413D394D61aEe08771CcDb445f49bF768Dbf",
+  ApproveProxy: "0x4687A5f4dd1c17cb573205a56eb3CE3fF3AE220F",
 
   //Tokens
   Tokens: {

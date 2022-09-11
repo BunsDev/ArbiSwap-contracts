@@ -15,6 +15,7 @@ import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
 import { UniERC20 } from "../../lib/UniERC20.sol";
 import { SafeERC20 } from "../../lib/SafeERC20.sol";
+import "hardhat/console.sol";
 
 // In curve factory = registry
 contract CurveAdapter is IRouterAdapter {
@@ -82,6 +83,10 @@ contract CurveAdapter is IRouterAdapter {
         address toToken,
         address pool
     ) public view override returns (uint256 _output) {
+        console.log("In Curve");
+        console.log(fromToken);
+        console.log(toToken);
+        console.log(amountIn);
         if (ICurveRegistry(registry).get_lp_token(pool) != address(0)) {
             // console.log("get_lp_token registry result %s", ICurveRegistry(registry).get_lp_token(pool));
             _output = _getAmountOutCurve(registry, fromToken, amountIn, toToken, pool);

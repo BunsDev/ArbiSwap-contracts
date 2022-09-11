@@ -18,36 +18,36 @@ import type {
 
 task("deploy:Adapters").setAction(async function (taskArguments: TaskArguments, { ethers }) {
   const signers: SignerWithAddress[] = await ethers.getSigners();
-  // const balancerAdapterFactory: BalancerAdapter__factory = <BalancerAdapter__factory>(
-  //   await ethers.getContractFactory("BalancerAdapter")
-  // );
-  // const balancerAdapter: BalancerAdapter = <BalancerAdapter>await balancerAdapterFactory.connect(signers[0]).deploy();
-  // await balancerAdapter.deployed();
-  // console.log("BalancerAdapter deployed to: ", balancerAdapter.address);
+  const balancerAdapterFactory: BalancerAdapter__factory = <BalancerAdapter__factory>(
+    await ethers.getContractFactory("BalancerAdapter")
+  );
+  const balancerAdapter: BalancerAdapter = <BalancerAdapter>await balancerAdapterFactory.connect(signers[0]).deploy();
+  await balancerAdapter.deployed();
+  console.log("BalancerAdapter deployed to: ", balancerAdapter.address);
 
-  // const curveAdapterFactory: CurveAdapter__factory = <CurveAdapter__factory>(
-  //   await ethers.getContractFactory("CurveAdapter")
-  // );
-  // const curveAdapter: CurveAdapter = <CurveAdapter>(
-  //   await curveAdapterFactory
-  //     .connect(signers[0])
-  //     .deploy(
-  //       config.WETH,
-  //       config.CurveStableRegistry,
-  //       config.CurveCryptoRegistry,
-  //       config.CurveFactoryRegistry,
-  //       config.CurveCryptoFactoryRegistry,
-  //     )
-  // );
-  // await curveAdapter.deployed();
-  // console.log("CurveAdapter deployed to: ", curveAdapter.address);
+  const curveAdapterFactory: CurveAdapter__factory = <CurveAdapter__factory>(
+    await ethers.getContractFactory("CurveAdapter")
+  );
+  const curveAdapter: CurveAdapter = <CurveAdapter>(
+    await curveAdapterFactory
+      .connect(signers[0])
+      .deploy(
+        config.WETH,
+        config.CurveStableRegistry,
+        config.CurveCryptoRegistry,
+        config.CurveFactoryRegistry,
+        config.CurveCryptoFactoryRegistry,
+      )
+  );
+  await curveAdapter.deployed();
+  console.log("CurveAdapter deployed to: ", curveAdapter.address);
 
-  // const uniV2AdapterFactory: UniV2Adapter__factory = <UniV2Adapter__factory>(
-  //   await ethers.getContractFactory("UniV2Adapter")
-  // );
-  // const uniV2Adapter: UniV2Adapter = <UniV2Adapter>await uniV2AdapterFactory.connect(signers[0]).deploy();
-  // await uniV2Adapter.deployed();
-  // console.log("UniV2Adapter deployed to: ", uniV2Adapter.address);
+  const uniV2AdapterFactory: UniV2Adapter__factory = <UniV2Adapter__factory>(
+    await ethers.getContractFactory("UniV2Adapter")
+  );
+  const uniV2Adapter: UniV2Adapter = <UniV2Adapter>await uniV2AdapterFactory.connect(signers[0]).deploy();
+  await uniV2Adapter.deployed();
+  console.log("UniV2Adapter deployed to: ", uniV2Adapter.address);
 
   const uniV3AdapterFactory: UniV3Adapter__factory = <UniV3Adapter__factory>(
     await ethers.getContractFactory("UniV3Adapter")

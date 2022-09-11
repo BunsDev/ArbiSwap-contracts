@@ -6,6 +6,7 @@ import { IRouterAdapter } from "../intf/IRouterAdapter.sol";
 import { IUniswapV2Pair } from "../intf/IUniV2.sol";
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract UniV2Adapter is IRouterAdapter {
     using SafeMath for uint256;
@@ -19,7 +20,7 @@ contract UniV2Adapter is IRouterAdapter {
         uint256 amountIn,
         address toToken,
         address pool
-    ) public override returns (uint256 _output) {
+    ) public view override returns (uint256 _output) {
         require(amountIn > 0, "UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT");
 
         (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(pool).getReserves();
@@ -38,6 +39,10 @@ contract UniV2Adapter is IRouterAdapter {
         } else {
             revert("invalid token pair");
         }
+        console.log("In UniV2");
+        console.log(fromToken);
+        console.log(toToken);
+        console.log(amountIn);
 
         try IUniswapV2Pair(pool).swapFee() returns (uint32 _fee) {
             uint256 amountInWithFee = amountIn.mul(uint256(10000).sub(_fee));

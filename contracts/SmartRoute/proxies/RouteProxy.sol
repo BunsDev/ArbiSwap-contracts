@@ -15,6 +15,8 @@ import { FlashLoanReceiverBaseV2 } from "./FlashLoanReceiverBaseV2.sol";
 import { ILendingPoolAddressesProviderV2 } from "../intf/ILendingPoolAddressesProviderV2.sol";
 import { ILendingPoolV2 } from "../intf/ILendingPoolV2.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title RouteProxy
  * @author fortoon21
@@ -129,6 +131,10 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
                 pathInfos[pathInfos.length - 1].toToken == toToken,
             "not same input"
         );
+        console.log(pathInfos[0].fromToken);
+        console.log(pathInfos[0].toToken);
+        console.log(pathInfos[0].to);
+        console.log(pathInfos[0].amountIn);
         outputs = _calcMultiHopSingleSwap(pathInfos);
     }
 
@@ -577,6 +583,7 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
         address from = fromToken;
         address to = toToken;
 
+        // poolEdition is 0 only for uniV2
         if (poolEdition == 0) {
             if (fromToken == _ETH_ADDRESS_) {
                 IWETH(_WETH_ADDRESS_).deposit{ value: amountIn }();
@@ -601,6 +608,13 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
         }
     }
 
+    function _wrapToken(address token, uint16 poolEdition) internal view returns (address wrapped) {
+        wrapped = token;
+        if (poolEdition == 0 && token == _ETH_ADDRESS_) {
+            wrapped = _WETH_ADDRESS_;
+        }
+    }
+
     function _calcMultiHopSingleSwap(MultiAMMLib.Swap[] memory pathInfos) internal returns (uint256[] memory outputs) {
         uint256 pathInfoNum = pathInfos.length;
         outputs = new uint256[](pathInfoNum + 1);
@@ -611,16 +625,16 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
             require(pathInfos[i - 1].toToken == pathInfos[i].fromToken, "Not valid multihopSingleSwap Path");
 
             outputs[i] = IRouterAdapter(pathInfos[i - 1].adapter).getAmountOut(
-                pathInfos[i - 1].fromToken,
+                _wrapToken(pathInfos[i - 1].fromToken, pathInfos[i - 1].poolEdition),
                 outputs[i - 1],
-                pathInfos[i - 1].toToken,
+                _wrapToken(pathInfos[i - 1].toToken, pathInfos[i - 1].poolEdition),
                 pathInfos[i - 1].pool
             );
         }
         outputs[pathInfoNum] = IRouterAdapter(pathInfos[pathInfoNum - 1].adapter).getAmountOut(
-            pathInfos[pathInfoNum - 1].fromToken,
+            _wrapToken(pathInfos[pathInfoNum - 1].fromToken, pathInfos[pathInfoNum - 1].poolEdition),
             outputs[pathInfoNum - 1],
-            pathInfos[pathInfoNum - 1].toToken,
+            _wrapToken(pathInfos[pathInfoNum - 1].toToken, pathInfos[pathInfoNum - 1].poolEdition),
             pathInfos[pathInfoNum - 1].pool
         );
     }
@@ -645,13 +659,10 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
                 : weightPathInfo.amountIn.mul(weightPathInfo.weights[i]).div(totalWeight);
             rest = rest.sub(partAmountIn);
 
-            address from = weightPathInfo.fromToken == _ETH_ADDRESS_ ? _WETH_ADDRESS_ : weightPathInfo.fromToken;
-            address to = weightPathInfo.toToken == _ETH_ADDRESS_ ? _WETH_ADDRESS_ : weightPathInfo.toToken;
-
             output += IRouterAdapter(weightPathInfo.adapters[i]).getAmountOut(
-                from,
+                _wrapToken(weightPathInfo.fromToken, weightPathInfo.poolEditions[i]),
                 partAmountIn,
-                to,
+                _wrapToken(weightPathInfo.toToken, weightPathInfo.poolEditions[i]),
                 weightPathInfo.pools[i]
             );
         }
