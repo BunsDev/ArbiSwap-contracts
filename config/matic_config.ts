@@ -31,7 +31,7 @@ const matic_config = {
 
   //Should deploy contracts below
   //Approve
-  Approve: "0xd50C8fAc46927d2a9B9aca747Cc5659746F43Fa5",
+  Approve: "0x14A2E44365e198161769Ca71671A967E63Ca8559",
 
   //Adapter
   UniV2Adapter: "0xd083c6fF3280cFb473B4f37913C4A0D68C06397a",
@@ -48,8 +48,8 @@ const matic_config = {
   TokenViewer: "0xeD88594a23Be9f53E5958AEA54437A7719c1fb89",
 
   //Proxy
-  RouteProxy: "0xc6f9413D394D61aEe08771CcDb445f49bF768Dbf",
-  ApproveProxy: "0x4687A5f4dd1c17cb573205a56eb3CE3fF3AE220F",
+  RouteProxy: "0x9A5c7c3E5f504A634462614f3929fcFc561F245c",
+  ApproveProxy: "0xb2828A315563fc2A8bcEBc8927b9AcfD40fb98eC",
 
   //Tokens
   Tokens: {

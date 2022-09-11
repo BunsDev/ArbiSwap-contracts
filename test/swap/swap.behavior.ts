@@ -135,13 +135,13 @@ export function testUnitGetMultiHopSingleSwapOut(): void {
     logger.log("UnitGetMultiHopSingleSwapOut:BalancerAdapter: getAmountOut WMATIC to USDC");
     logger.log(
       await this.routeProxy.connect(this.signers.admin).getMultiHopSingleSwapOut(
-        config.WETH,
+        config.coin,
         ethers.utils.parseUnits("1", 18),
         config.Tokens.USDC.address,
 
         [
           {
-            fromToken: config.WETH,
+            fromToken: config.coin,
             amountIn: ethers.utils.parseUnits("1", 18),
             toToken: config.Tokens.USDC.address,
             to: "0x0000000000000000000000000000000000000000",
