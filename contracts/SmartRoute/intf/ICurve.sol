@@ -170,7 +170,11 @@ interface ICurve {
 
     function coins(uint256 arg0) external view returns (address out);
 
+    function balances(uint256 arg0) external view returns (uint256 balance);
+
     function A() external view returns (uint256);
+
+    function token() external view returns (address);
 }
 
 interface ICurveCrypto {
