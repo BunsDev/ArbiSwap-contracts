@@ -29,40 +29,40 @@ task("deploy:Adapters").setAction(async function (taskArguments: TaskArguments, 
   // await balancerAdapter.deployed();
   // console.log("BalancerAdapter deployed to: ", balancerAdapter.address);
 
-  const curveAdapterFactory: CurveAdapter__factory = <CurveAdapter__factory>(
-    await ethers.getContractFactory("CurveAdapter")
-  );
-  const curveAdapter: CurveAdapter = <CurveAdapter>(
-    await curveAdapterFactory
-      .connect(signers[0])
-      .deploy(
-        config.WETH,
-        config.CurveStableRegistry,
-        config.CurveCryptoRegistry,
-        config.CurveFactoryRegistry,
-        config.CurveCryptoFactoryRegistry,
-      )
-  );
-  await curveAdapter.deployed();
-  console.log("CurveAdapter deployed to: ", curveAdapter.address);
+  // const curveAdapterFactory: CurveAdapter__factory = <CurveAdapter__factory>(
+  //   await ethers.getContractFactory("CurveAdapter")
+  // );
+  // const curveAdapter: CurveAdapter = <CurveAdapter>(
+  //   await curveAdapterFactory
+  //     .connect(signers[0])
+  //     .deploy(
+  //       config.WETH,
+  //       config.CurveStableRegistry,
+  //       config.CurveCryptoRegistry,
+  //       config.CurveFactoryRegistry,
+  //       config.CurveCryptoFactoryRegistry,
+  //     )
+  // );
+  // await curveAdapter.deployed();
+  // console.log("CurveAdapter deployed to: ", curveAdapter.address);
 
-  const curveNoRegistryAdapterFactory: CurveNoRegistryAdapter__factory = <CurveNoRegistryAdapter__factory>(
-    await ethers.getContractFactory("CurveNoRegistryAdapter")
-  );
-  const curveNoRegistryAdapter: CurveNoRegistryAdapter = <CurveNoRegistryAdapter>(
-    await curveNoRegistryAdapterFactory.connect(signers[0]).deploy(config.RoseCurveBasePool)
-  );
-  await curveNoRegistryAdapter.deployed();
-  console.log("CurveNoRegistryAdapter deployed to: ", curveNoRegistryAdapter.address);
+  // const curveNoRegistryAdapterFactory: CurveNoRegistryAdapter__factory = <CurveNoRegistryAdapter__factory>(
+  //   await ethers.getContractFactory("CurveNoRegistryAdapter")
+  // );
+  // const curveNoRegistryAdapter: CurveNoRegistryAdapter = <CurveNoRegistryAdapter>(
+  //   await curveNoRegistryAdapterFactory.connect(signers[0]).deploy(config.RoseCurveBasePool)
+  // );
+  // await curveNoRegistryAdapter.deployed();
+  // console.log("CurveNoRegistryAdapter deployed to: ", curveNoRegistryAdapter.address);
 
-  const stableSwapAdapterFactory: StableSwapAdapter__factory = <StableSwapAdapter__factory>(
-    await ethers.getContractFactory("StableSwapAdapter")
-  );
-  const stableSwapAdapter: StableSwapAdapter = <StableSwapAdapter>(
-    await stableSwapAdapterFactory.connect(signers[0]).deploy(config.RoseCurveBasePool)
-  );
-  await stableSwapAdapter.deployed();
-  console.log("StableSwapAdapter deployed to: ", stableSwapAdapter.address);
+  // const stableSwapAdapterFactory: StableSwapAdapter__factory = <StableSwapAdapter__factory>(
+  //   await ethers.getContractFactory("StableSwapAdapter")
+  // );
+  // const stableSwapAdapter: StableSwapAdapter = <StableSwapAdapter>(
+  //   await stableSwapAdapterFactory.connect(signers[0]).deploy(config.RoseCurveBasePool)
+  // );
+  // await stableSwapAdapter.deployed();
+  // console.log("StableSwapAdapter deployed to: ", stableSwapAdapter.address);
 
   const uniV2AdapterFactory: UniV2Adapter__factory = <UniV2Adapter__factory>(
     await ethers.getContractFactory("UniV2Adapter")

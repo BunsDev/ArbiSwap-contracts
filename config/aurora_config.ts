@@ -40,7 +40,7 @@ const aurora_config = {
   Approve: "0xcC59a96DDBd08bDA63163b0C4046326796cBE56c",
 
   //Adapter
-  UniV2Adapter: "0xC926D433BD6B51E1ACcD7c1F1e7ce3101c03D3A0",
+  UniV2Adapter: "0xc75406f11cF2E638830f1f2822BC3ff12cAA0186",
   UniV3Adapter: "0x0000000000000000000000000000000000000000",
   // for curve
   CurveAdapter: "0xab98dbd0a6ba9a110a207263af1ff4b538584b6a",
