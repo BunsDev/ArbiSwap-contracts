@@ -57,7 +57,8 @@ contract StableSwapViewer is IStableSwapPoolInfoViewer {
                 A: swapPool.getA(),
                 fees: fees,
                 tokenBalances: tokenBalances, //
-                pool: address(token),
+                pool: pool,
+                lpToken: address(token),
                 tokenList: tokenList, //
                 isMeta: isMeta, //
                 decimals: token.decimals(),

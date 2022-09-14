@@ -21,6 +21,7 @@ interface ICurveCryptoPoolInfoViewer {
         uint256 virtual_price;
         uint256[] tokenBalances;
         address pool;
+        address lpToken;
         address[] tokenList;
         uint8 decimals;
         string name;

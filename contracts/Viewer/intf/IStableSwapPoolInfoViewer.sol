@@ -8,6 +8,7 @@ interface IStableSwapPoolInfoViewer {
         uint256[2] fees;
         uint256[] tokenBalances;
         address pool;
+        address lpToken;
         address[] tokenList;
         uint256 isMeta;
         uint8 decimals;
