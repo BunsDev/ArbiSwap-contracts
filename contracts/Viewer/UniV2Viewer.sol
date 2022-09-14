@@ -41,6 +41,14 @@ contract UniV2Viewer is IUniswapV2PoolInfoViewer {
             });
     }
 
+    function getPairInfo(address _factory, uint256 idx) public view returns (UniswapV2PoolInfo memory) {
+        return getPoolInfo(IUniswapV2Factory(_factory).allPairs(idx));
+    }
+
+    function allPairsLength(address _factory) external view returns (uint256) {
+        return IUniswapV2Factory(_factory).allPairsLength();
+    }
+
     function pools(address _facotry) external view returns (address[] memory) {
         address[] memory _pools = new address[](IUniswapV2Factory(_facotry).allPairsLength());
         for (uint256 i; i < _pools.length; i++) {
