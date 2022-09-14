@@ -11,7 +11,9 @@ import { UniERC20 } from "../../lib/UniERC20.sol";
 import { SafeERC20 } from "../../lib/SafeERC20.sol";
 import { MultiAMMLib } from "../../lib/MultiAMMLib.sol";
 import { IRouterAdapter } from "../intf/IRouterAdapter.sol";
-import { FlashLoanReceiverBaseV2 } from "./FlashLoanReceiverBaseV2.sol";
+
+import { IFlashLoanReceiver, IFlashLoan } from "../intf/IFlashLoanV1.sol";
+
 import { ILendingPoolAddressesProviderV2 } from "../intf/ILendingPoolAddressesProviderV2.sol";
 import { ILendingPoolV2 } from "../intf/ILendingPoolV2.sol";
 
@@ -24,16 +26,19 @@ import "hardhat/console.sol";
  * @notice Split trading
  * Need to wrap eth address in the following pool convention
  */
-contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
+contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
     using SafeMath for uint256;
     using UniERC20 for IERC20;
     using SafeERC20 for IERC20;
+
+    receive() external payable {}
 
     // ============ Storage ============
 
     address constant _ETH_ADDRESS_ = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address payable public immutable _WETH_ADDRESS_;
     address public immutable _APPROVE_PROXY_;
+    address public immutable LENDING_POOL;
 
     // ============ Events ============
 
@@ -50,10 +55,11 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
 
     constructor(
         address approveProxy,
-        address _addressProvider,
+        address _defaultFlashloan,
         address payable __WETH_ADDRESS_
-    ) FlashLoanReceiverBaseV2(_addressProvider) {
+    ) {
         _APPROVE_PROXY_ = approveProxy;
+        LENDING_POOL = _defaultFlashloan;
         _WETH_ADDRESS_ = __WETH_ADDRESS_;
     }
 
@@ -443,13 +449,19 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
             uint256[] memory outputs = _calcMultiHopSingleSwap(flashDes[i].swaps);
             if (
                 outputs[outputs.length - 1] >
-                flashDes[i].amountIn.mul(10000 + LENDING_POOL.FLASHLOAN_PREMIUM_TOTAL()).div(10000)
+                flashDes[i].amountIn.mul(10000 + IFlashLoan(LENDING_POOL).flashLoanFeeBPS()).div(10000)
             ) {
-                _flashloan(flashDes[i].asset, flashDes[i].amountIn, abi.encode(flashDes[i].swaps));
+                IFlashLoan(LENDING_POOL).flashLoan(
+                    address(this),
+                    flashDes[i].asset,
+                    flashDes[i].amountIn,
+                    abi.encode(flashDes[i].swaps)
+                );
 
                 if (toToken == flashDes[i].asset) {
                     output += IERC20(flashDes[i].asset).uniBalanceOf(address(this));
                 }
+
                 IERC20(flashDes[i].asset).uniTransfer(
                     msg.sender,
                     IERC20(flashDes[i].asset).uniBalanceOf(address(this))
@@ -464,98 +476,33 @@ contract RouteProxy is FlashLoanReceiverBaseV2, Withdrawable, ReentrancyGuard {
      * @dev This function must be called only be the LENDING_POOL and takes care of repaying
      * active debt positions, migrating collateral and incurring new V2 debt token debt.
      *
-     * @param assets The array of flash loaned assets used to repay debts.
-     * @param amounts The array of flash loaned asset amounts used to repay debts.
-     * @param premiums The array of premiums incurred as additional debts.
-     * @param initiator The address that initiated the flash loan, unused.
+     * @param pool The address that initiated the flash loan, unused.
+     * @param token flash loaned asset used to repay debt.
+     * @param amount flash loaned asset amounts used to repay debt.
+     * @param fee the premium incurred as additional debt.
      * @param params The byte array containing, in this case, the arrays of aTokens and aTokenAmounts.
      */
     function executeOperation(
-        address[] calldata assets,
-        uint256[] calldata amounts,
-        uint256[] calldata premiums,
-        address initiator,
+        address pool,
+        address token,
+        uint256 amount,
+        uint256 fee,
         bytes calldata params
-    ) external override returns (bool) {
+    ) external override {
         //
         // This contract now has the funds requested.
         // Your logic goes here.
         //
-
-        for (uint256 i; i < assets.length; i++) {
-            if (assets[i] == _WETH_ADDRESS_) {
-                IWETH(_WETH_ADDRESS_).withdraw(amounts[i]);
-            }
-        }
 
         MultiAMMLib.Swap[] memory pathInfos = abi.decode(params, (MultiAMMLib.Swap[]));
         pathInfos[pathInfos.length - 1].to = address(this);
         _multiHopSingleSwap(pathInfos);
 
         // At the end of your logic above, this contract owes
-        // the flashloaned amounts + premiums.
+        // the flashloaned amount + fee.
         // Therefore ensure your contract has enough to repay
         // these amounts.
-
-        // Approve the LendingPool contract allowance to *pull* the owed amount
-        for (uint256 i = 0; i < assets.length; i++) {
-            uint256 amountOwing = amounts[i].add(premiums[i]);
-            if (assets[i] == _WETH_ADDRESS_) {
-                IWETH(_WETH_ADDRESS_).deposit{ value: amountOwing }();
-            }
-
-            IERC20(assets[i]).approve(address(LENDING_POOL), amountOwing);
-        }
-
-        return true;
-    }
-
-    function _flashloan(
-        address[] memory assets,
-        uint256[] memory amounts,
-        bytes memory params
-    ) internal {
-        address receiverAddress = address(this);
-        address[] memory _assets = new address[](assets.length);
-        for (uint256 i; i < assets.length; i++) {
-            _assets[i] = assets[i] == address(0) ? _WETH_ADDRESS_ : assets[i];
-        }
-
-        address onBehalfOf = address(this);
-        uint16 referralCode = 0;
-
-        uint256[] memory modes = new uint256[](assets.length);
-
-        // 0 = no debt (flash), 1 = stable, 2 = variable
-        for (uint256 i = 0; i < assets.length; i++) {
-            modes[i] = 0;
-        }
-
-        LENDING_POOL.flashLoan(receiverAddress, _assets, amounts, modes, onBehalfOf, params, referralCode);
-    }
-
-    /*
-     *  Flash multiple assets
-     */
-    function flashloan(address[] memory assets, uint256[] memory amounts) public onlyOwner {
-        _flashloan(assets, amounts, "");
-    }
-
-    /*
-     *  Flash loan 1000000000000000000 wei (1 ether) worth of `_asset`
-     */
-    function _flashloan(
-        address _asset,
-        uint256 amount,
-        bytes memory data
-    ) internal {
-        address[] memory assets = new address[](1);
-        assets[0] = _asset;
-
-        uint256[] memory amounts = new uint256[](1);
-        amounts[0] = amount;
-
-        _flashloan(assets, amounts, data);
+        IERC20(token).safeTransfer(pool, amount + fee);
     }
 
     function _deposit(

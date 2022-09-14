@@ -49,8 +49,8 @@ function getChainConfig(chain: keyof typeof api_keys): NetworkUserConfig {
       mnemonic,
       path: "m/44'/60'/0'/0",
     },
-    chainId: chainId,
-    url: jsonRpcUrl,
+    chainId: 1313161554,
+    url: "https://mainnet.aurora.dev",
   };
 }
 
@@ -83,7 +83,7 @@ const config: HardhatUserConfig = {
         // eslint-disable-next-line
 
         enabled: true,
-        url: api_keys["polygon-mainnet"].jsonRpcUrl + "/" + api_keys["polygon-mainnet"].API_Key,
+        url: api_keys["aurora-mainnet"].jsonRpcUrl + "/" + api_keys["aurora-mainnet"].API_Key,
       },
     },
     celo: getChainConfig("celo-mainnet"),

@@ -2,7 +2,7 @@ import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
-import { config } from "../../config/matic_config";
+import { config } from "../../config/aurora_config";
 import type { Approve } from "../../src/types/SmartRoute/Approve";
 import type { ApproveProxy } from "../../src/types/SmartRoute/ApproveProxy.sol";
 import type { RouteProxy } from "../../src/types/SmartRoute/proxies";
@@ -29,11 +29,7 @@ task("deploy:Route").setAction(async function (taskArguments: TaskArguments, { e
 
   const RouteProxyFactory: RouteProxy__factory = <RouteProxy__factory>await ethers.getContractFactory("RouteProxy");
   const RouteProxy: RouteProxy = <RouteProxy>(
-    await RouteProxyFactory.connect(signers[0]).deploy(
-      approveProxy.address,
-      config.AAVEV2LendingAddressProvider,
-      config.WETH,
-    )
+    await RouteProxyFactory.connect(signers[0]).deploy(approveProxy.address, config.FlashloanSwap, config.WETH)
   );
   await RouteProxy.deployed();
   console.log("RouteProxy deployed to: ", RouteProxy.address);
