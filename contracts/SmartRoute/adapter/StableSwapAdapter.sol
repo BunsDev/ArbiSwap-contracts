@@ -3,7 +3,7 @@
 pragma solidity 0.8.15;
 import "hardhat/console.sol";
 import { IRouterAdapter } from "../intf/IRouterAdapter.sol";
-import { ISwap } from "../intf/IStableSwap.sol";
+import { ISwap, IPoolRegistry } from "../intf/IStableSwap.sol";
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
 import { UniERC20 } from "../../lib/UniERC20.sol";
@@ -16,11 +16,12 @@ contract StableSwapAdapter is IRouterAdapter {
     using UniERC20 for IERC20;
     using SafeERC20 for IERC20;
     address public constant _ETH_ADDRESS_ = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-
+    address public immutable registry;
     address public immutable _WETH_ADDRESS_;
 
-    constructor(address __WETH_ADDRESS_) {
+    constructor(address _registry, address __WETH_ADDRESS_) {
         _WETH_ADDRESS_ = __WETH_ADDRESS_;
+        registry = _registry;
     }
 
     // MetaSwap is a modified version of Swap that allows Swap's LP token to be utilized in pooling with other tokens.
@@ -36,7 +37,8 @@ contract StableSwapAdapter is IRouterAdapter {
         ISwap stableSwap = ISwap(pool);
         uint8 i;
         uint8 j;
-        try stableSwap.metaSwapStorage() returns (address baseSwap, uint256, uint256) {
+        address baseSwap = IPoolRegistry(pool).getPoolData(pool).basePoolAddress;
+        if (baseSwap != address(0)) {
             try stableSwap.getTokenIndex(fromToken) returns (uint8 fromIndex) {
                 i = fromIndex;
             } catch {
@@ -50,7 +52,7 @@ contract StableSwapAdapter is IRouterAdapter {
             }
 
             _output = stableSwap.calculateSwapUnderlying(i, j, amountIn);
-        } catch {
+        } else {
             i = stableSwap.getTokenIndex(fromToken);
             j = stableSwap.getTokenIndex(toToken);
             _output = stableSwap.calculateSwap(i, j, amountIn);
@@ -68,7 +70,9 @@ contract StableSwapAdapter is IRouterAdapter {
         ISwap stableSwap = ISwap(pool);
         uint8 i;
         uint8 j;
-        try stableSwap.metaSwapStorage() returns (address baseSwap, uint256, uint256) {
+        address baseSwap = IPoolRegistry(pool).getPoolData(pool).basePoolAddress;
+
+        if (baseSwap != address(0)) {
             try stableSwap.getTokenIndex(fromToken) returns (uint8 fromIndex) {
                 i = fromIndex;
             } catch {
@@ -82,7 +86,7 @@ contract StableSwapAdapter is IRouterAdapter {
             }
 
             _output = stableSwap.swapUnderlying(i, j, amountIn, 1, type(uint256).max);
-        } catch {
+        } else {
             i = stableSwap.getTokenIndex(fromToken);
             j = stableSwap.getTokenIndex(toToken);
             _output = stableSwap.swap(i, j, amountIn, 1, type(uint256).max);

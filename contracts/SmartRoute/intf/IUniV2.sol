@@ -21,6 +21,10 @@ interface IUniswapV2Factory {
     function setFeeToSetter(address) external;
 }
 
+interface IUniswapV2Viewer {
+    function fee(address pool) external view returns (uint32);
+}
+
 interface IUniswapV2Pair {
     function name() external pure returns (string memory);
 

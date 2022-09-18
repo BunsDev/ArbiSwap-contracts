@@ -5,6 +5,7 @@ import { IERC20Metadata } from "../intf/IERC20Metadata.sol";
 import { ICurve } from "../SmartRoute/intf/ICurve.sol";
 
 import "./intf/ICurveNoRegistryPoolInfoViewer.sol";
+import { EnumerableSet } from "../lib/EnumerableSet.sol";
 
 /*
  * @dev: for test only
@@ -12,10 +13,13 @@ import "./intf/ICurveNoRegistryPoolInfoViewer.sol";
 import "hardhat/console.sol";
 
 contract CurveNoRegistryViewer is ICurveNoRegistryPoolInfoViewer {
-    address public immutable basePool;
+    using EnumerableSet for EnumerableSet.AddressSet;
+    EnumerableSet.AddressSet private basePools;
 
-    constructor(address _basePool) {
-        basePool = _basePool;
+    constructor(address[] memory _basePools) {
+        for (uint256 i; i < _basePools.length; i++) {
+            basePools.add(_basePools[i]);
+        }
     }
 
     function getPoolInfo(address pool) public view override returns (CurveNoRegistryPoolInfo memory) {
@@ -29,7 +33,7 @@ contract CurveNoRegistryViewer is ICurveNoRegistryPoolInfoViewer {
         uint256 isMeta;
         address[] memory tokenList;
         uint256[] memory tokenBalances;
-        if (pool == basePool) {
+        if (basePools.contains(pool)) {
             token = IERC20Metadata(curvePool.lp_token());
             // usdt/usdc/dai
             tokenNum = 3;

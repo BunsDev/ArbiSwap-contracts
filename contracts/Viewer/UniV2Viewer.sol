@@ -10,9 +10,22 @@ import "./intf/IUniswapV2PoolInfoViewer.sol";
  * @dev: for test only
  */
 import "hardhat/console.sol";
+import { EnumerableMap } from "../lib/EnumerableMap.sol";
 
 contract UniV2Viewer is IUniswapV2PoolInfoViewer {
-    uint32 public constant DEFAUlT_FEE = 3000;
+    using EnumerableMap for EnumerableMap.AddressToUintMap;
+    EnumerableMap.AddressToUintMap private dexTofees;
+
+    constructor(address[] memory factories, uint256[] memory fees) {
+        require(factories.length == fees.length, "diff length");
+        for (uint256 i; i < factories.length; i++) {
+            dexTofees.set(factories[i], fees[i]);
+        }
+    }
+
+    function fee(address pool) external view returns (uint32) {
+        return uint32(dexTofees.get(pool));
+    }
 
     function getPoolInfo(address pool) public view override returns (UniswapV2PoolInfo memory) {
         IUniswapV2Pair uniswapV2Pair = IUniswapV2Pair(pool);
@@ -23,11 +36,7 @@ contract UniV2Viewer is IUniswapV2PoolInfoViewer {
         (tokenBalances[0], tokenBalances[1], ) = uniswapV2Pair.getReserves();
         uint32[] memory fees = new uint32[](1);
 
-        try IUniswapV2Pair(pool).swapFee() returns (uint32 _fee) {
-            fees[0] = _fee * 100;
-        } catch {
-            fees[0] = DEFAUlT_FEE;
-        }
+        fees[0] = this.fee(pool);
         return
             UniswapV2PoolInfo({
                 totalSupply: uniswapV2Pair.totalSupply(),

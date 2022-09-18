@@ -3,13 +3,19 @@
 pragma solidity 0.8.15;
 import { ReentrancyGuard } from "../../lib/ReentrancyGuard.sol";
 import { IRouterAdapter } from "../intf/IRouterAdapter.sol";
-import { IUniswapV2Pair } from "../intf/IUniV2.sol";
+import { IUniswapV2Pair, IUniswapV2Viewer } from "../intf/IUniV2.sol";
+
 import { IERC20 } from "../../intf/IERC20.sol";
 import { SafeMath } from "../../lib/SafeMath.sol";
 import "hardhat/console.sol";
 
 contract UniV2Adapter is IRouterAdapter {
     using SafeMath for uint256;
+    address public immutable uni2Viewer;
+
+    constructor(address _uni2Viewer) {
+        uni2Viewer = _uni2Viewer;
+    }
 
     function factory(address pool) public view returns (address) {
         return IUniswapV2Pair(pool).factory();
@@ -44,15 +50,17 @@ contract UniV2Adapter is IRouterAdapter {
         console.log(toToken);
         console.log(amountIn);
 
-        try IUniswapV2Pair(pool).swapFee() returns (uint32 _fee) {
-            uint256 amountInWithFee = amountIn.mul(uint256(10000).sub(_fee));
-            uint256 numerator = amountInWithFee.mul(reserveOutput);
-            uint256 denominator = reserveInput.mul(10000).add(amountInWithFee);
-            _output = numerator / denominator;
-        } catch {
-            uint256 amountInWithFee = amountIn.mul(997);
+        uint32 fee = IUniswapV2Viewer(uni2Viewer).fee(pool);
+
+        if (fee % 10 == 0) {
+            uint256 amountInWithFee = amountIn.mul(1000 - fee / 1000);
             uint256 numerator = amountInWithFee.mul(reserveOutput);
             uint256 denominator = reserveInput.mul(1000).add(amountInWithFee);
+            _output = numerator / denominator;
+        } else {
+            uint256 amountInWithFee = amountIn.mul(10000 - fee / 100);
+            uint256 numerator = amountInWithFee.mul(reserveOutput);
+            uint256 denominator = reserveInput.mul(10000).add(amountInWithFee);
             _output = numerator / denominator;
         }
     }

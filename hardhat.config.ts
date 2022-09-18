@@ -84,7 +84,7 @@ const config: HardhatUserConfig = {
         // eslint-disable-next-line
 
         enabled: true,
-        url: api_keys["polygon-mainnet"].jsonRpcUrl + "/" + api_keys["polygon-mainnet"].API_Key,
+        url: api_keys["evmos-mainnet"].jsonRpcUrl + "/" + api_keys["evmos-mainnet"].API_Key,
       },
     },
     celo: getChainConfig("celo-mainnet"),
