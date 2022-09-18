@@ -34,6 +34,7 @@ const chainIds = {
   "solana-mainnet": 0,
   "near-mainnet": 0,
   "sui-testnet": 0,
+  "evmos-mainnet": 9001,
 };
 
 function getChainConfig(chain: keyof typeof api_keys): NetworkUserConfig {
@@ -49,8 +50,8 @@ function getChainConfig(chain: keyof typeof api_keys): NetworkUserConfig {
       mnemonic,
       path: "m/44'/60'/0'/0",
     },
-    chainId: 1313161554,
-    url: "https://mainnet.aurora.dev",
+    chainId: chainId,
+    url: jsonRpcUrl,
   };
 }
 
@@ -83,7 +84,7 @@ const config: HardhatUserConfig = {
         // eslint-disable-next-line
 
         enabled: true,
-        url: api_keys["aurora-mainnet"].jsonRpcUrl + "/" + api_keys["aurora-mainnet"].API_Key,
+        url: api_keys["polygon-mainnet"].jsonRpcUrl + "/" + api_keys["polygon-mainnet"].API_Key,
       },
     },
     celo: getChainConfig("celo-mainnet"),
@@ -95,6 +96,7 @@ const config: HardhatUserConfig = {
     "polygon-mainnet": getChainConfig("polygon-mainnet"),
     "polygon-mumbai": getChainConfig("polygon-mumbai"),
     rinkeby: getChainConfig("rinkeby"),
+    evmos: getChainConfig("evmos-mainnet"),
   },
   paths: {
     artifacts: "./artifacts",
