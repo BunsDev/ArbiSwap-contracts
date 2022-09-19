@@ -57,23 +57,23 @@ task("deploy:Adapters").setAction(async function (taskArguments: TaskArguments, 
   // await curveNoRegistryAdapter.deployed();
   // console.log("CurveNoRegistryAdapter deployed to: ", curveNoRegistryAdapter.address);
 
-  const stableSwapAdapterFactory: StableSwapAdapter__factory = <StableSwapAdapter__factory>(
-    await ethers.getContractFactory("StableSwapAdapter")
-  );
-  const stableSwapAdapter: StableSwapAdapter = <StableSwapAdapter>(
-    await stableSwapAdapterFactory.connect(signers[0]).deploy(config.WETH, config.SaddleRegistry)
-  );
-  await stableSwapAdapter.deployed();
-  console.log("StableSwapAdapter deployed to: ", stableSwapAdapter.address);
+  // const stableSwapAdapterFactory: StableSwapAdapter__factory = <StableSwapAdapter__factory>(
+  //   await ethers.getContractFactory("StableSwapAdapter")
+  // );
+  // const stableSwapAdapter: StableSwapAdapter = <StableSwapAdapter>(
+  //   await stableSwapAdapterFactory.connect(signers[0]).deploy(config.WETH, config.SaddleRegistry)
+  // );
+  // await stableSwapAdapter.deployed();
+  // console.log("StableSwapAdapter deployed to: ", stableSwapAdapter.address);
 
-  // const uniV2AdapterFactory: UniV2Adapter__factory = <UniV2Adapter__factory>(
-  //   await ethers.getContractFactory("UniV2Adapter")
-  // );
-  // const uniV2Adapter: UniV2Adapter = <UniV2Adapter>(
-  //   await uniV2AdapterFactory.connect(signers[0]).deploy(config.UniV2Viewer)
-  // );
-  // await uniV2Adapter.deployed();
-  // console.log("UniV2Adapter deployed to: ", uniV2Adapter.address);
+  const uniV2AdapterFactory: UniV2Adapter__factory = <UniV2Adapter__factory>(
+    await ethers.getContractFactory("UniV2Adapter")
+  );
+  const uniV2Adapter: UniV2Adapter = <UniV2Adapter>(
+    await uniV2AdapterFactory.connect(signers[0]).deploy(config.UniV2Viewer)
+  );
+  await uniV2Adapter.deployed();
+  console.log("UniV2Adapter deployed to: ", uniV2Adapter.address);
 
   // const uniV3AdapterFactory: UniV3Adapter__factory = <UniV3Adapter__factory>(
   //   await ethers.getContractFactory("UniV3Adapter")

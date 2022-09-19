@@ -40,23 +40,23 @@ task("deploy:Viewers").setAction(async function (taskArguments: TaskArguments, {
   // await curveViewer.deployed();
   // console.log("CurveViewer deployed to: ", curveViewer.address);
 
-  const stableSwapViewerFactory: StableSwapViewer__factory = <StableSwapViewer__factory>(
-    await ethers.getContractFactory("StableSwapViewer")
-  );
-  const stableSwapViewer: StableSwapViewer = <StableSwapViewer>(
-    await stableSwapViewerFactory.connect(signers[0]).deploy()
-  );
-  await stableSwapViewer.deployed();
-  console.log("StableSwapViewer deployed to: ", stableSwapViewer.address);
+  // const stableSwapViewerFactory: StableSwapViewer__factory = <StableSwapViewer__factory>(
+  //   await ethers.getContractFactory("StableSwapViewer")
+  // );
+  // const stableSwapViewer: StableSwapViewer = <StableSwapViewer>(
+  //   await stableSwapViewerFactory.connect(signers[0]).deploy()
+  // );
+  // await stableSwapViewer.deployed();
+  // console.log("StableSwapViewer deployed to: ", stableSwapViewer.address);
 
-  const curveNoRegistryViewerFactory: CurveNoRegistryViewer__factory = <CurveNoRegistryViewer__factory>(
-    await ethers.getContractFactory("CurveNoRegistryViewer")
-  );
-  const curveNoRegistryViewer: CurveNoRegistryViewer = <CurveNoRegistryViewer>(
-    await curveNoRegistryViewerFactory.connect(signers[0]).deploy(config.KinesisCurvePools)
-  );
-  await curveNoRegistryViewer.deployed();
-  console.log("CurveNoRegistryViewer deployed to: ", curveNoRegistryViewer.address);
+  // const curveNoRegistryViewerFactory: CurveNoRegistryViewer__factory = <CurveNoRegistryViewer__factory>(
+  //   await ethers.getContractFactory("CurveNoRegistryViewer")
+  // );
+  // const curveNoRegistryViewer: CurveNoRegistryViewer = <CurveNoRegistryViewer>(
+  //   await curveNoRegistryViewerFactory.connect(signers[0]).deploy(config.KinesisCurvePools)
+  // );
+  // await curveNoRegistryViewer.deployed();
+  // console.log("CurveNoRegistryViewer deployed to: ", curveNoRegistryViewer.address);
 
   // const curveCryptoViewerFactory: CurveCryptoViewer__factory = <CurveCryptoViewer__factory>(
   //   await ethers.getContractFactory("CurveCryptoViewer")
@@ -81,8 +81,8 @@ task("deploy:Viewers").setAction(async function (taskArguments: TaskArguments, {
   // await uniV3Viewer.deployed();
   // console.log("UniV3Viewer deployed to: ", uniV3Viewer.address);
 
-  const tokenViewerFactory: TokenViewer__factory = <TokenViewer__factory>await ethers.getContractFactory("TokenViewer");
-  const tokenViewer: TokenViewer = <TokenViewer>await tokenViewerFactory.connect(signers[0]).deploy();
-  await tokenViewer.deployed();
-  console.log("TokenViewer deployed to: ", tokenViewer.address);
+  // const tokenViewerFactory: TokenViewer__factory = <TokenViewer__factory>await ethers.getContractFactory("TokenViewer");
+  // const tokenViewer: TokenViewer = <TokenViewer>await tokenViewerFactory.connect(signers[0]).deploy();
+  // await tokenViewer.deployed();
+  // console.log("TokenViewer deployed to: ", tokenViewer.address);
 });

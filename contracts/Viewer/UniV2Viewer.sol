@@ -24,7 +24,7 @@ contract UniV2Viewer is IUniswapV2PoolInfoViewer {
     }
 
     function fee(address pool) external view returns (uint32) {
-        return uint32(dexTofees.get(pool));
+        return uint32(dexTofees.get(IUniswapV2Pair(pool).factory()));
     }
 
     function getPoolInfo(address pool) public view override returns (UniswapV2PoolInfo memory) {
