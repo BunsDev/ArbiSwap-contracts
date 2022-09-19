@@ -1,4 +1,5 @@
 import axios from "axios";
+import { BigNumber, BigNumberish } from "ethers";
 import { ethers } from "hardhat";
 
 import { config } from "../../config/evmos_config";
@@ -6,7 +7,7 @@ import { logger } from "../logger";
 
 export function testUnitGetMultiHopSingleSwapOut(): void {
   it("UniV2", async function () {
-    logger.log("UnitGetMultiHopSingleSwapOut:UniV2(Mad Meerkat) getAmountOut WMATIC to USDC");
+    logger.log("UnitGetMultiHopSingleSwapOut:UniV2(Mad Meerkat) getAmountOut EVMOS to OSMO");
     logger.log(
       await this.routeProxy
         .connect(this.signers.admin)
@@ -39,6 +40,7 @@ export function testUnitGetMultiHopSingleSwapOut(): void {
             amountIn: ethers.utils.parseUnits("1", 18),
             toToken: config.Tokens.OSMO.address,
             to: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            // pool: "0x123063D3432171B125D17CafE4fb45E01b016953",
             pool: "0x60057bEF562A9FA391f5631baeC630a1c230878B",
             adapter: config.UniV2Adapter,
             poolEdition: 0,
@@ -52,69 +54,77 @@ export function testUnitGetMultiHopSingleSwapOut(): void {
         },
       ),
     );
+
+    logger.log(
+      await this.routeProxy.connect(this.signers.admin).callStatic.shieldSwap(
+        config.coin,
+        ethers.utils.parseUnits("1", 16),
+        config.Tokens.OSMO.address,
+        {
+          fromToken: config.coin,
+          amountIn: ethers.utils.parseUnits("1", 16),
+          toToken: config.Tokens.OSMO.address,
+          to: this.signers.admin.address,
+          weights: [1],
+          weightedSwaps: [
+            [
+              {
+                fromToken: config.coin,
+                amountIn: 0,
+                toToken: config.Tokens.OSMO.address,
+                to: config.RouteProxy,
+                pools: ["0x123063D3432171B125D17CafE4fb45E01b016953"],
+                weights: [1],
+                adapters: [config.UniV2Adapter],
+                poolEditions: [0],
+              },
+            ],
+          ],
+        },
+        [],
+        21666,
+        "1700000000000",
+        [0, 0],
+        {
+          value: ethers.utils.parseUnits("1", 16),
+        },
+      ),
+    );
   });
 
-  // it("UniV2 - Aggr", async function () {
-  //   logger.log("Getting metamask tx");
-  //   const response = await axios.post("http://0.0.0.0:1080/v1/quote/calculate", {
-  //     options: {
-  //       tokenInAddr: config.coin,
-  //       tokenOutAddr: config.Tokens.OSMO.address,
-  //       from: this.signers.admin.address,
-  //       amount: ethers.utils.parseUnits("1", 16).toString(),
-  //       slippageBps: 100,
-  //       maxEdge: 1,
-  //       maxSplit: 1,
-  //       withCycle: false
-  //     }
-  //   })
+  it("UniV2 - Run tx from quoteserver", async function () {
+    logger.log("Getting metamask tx");
+    const response = await axios.post("http://0.0.0.0:1080/v1/quote/calculate", {
+      options: {
+        tokenInAddr: config.coin,
+        tokenOutAddr: config.Tokens.OSMO.address,
+        from: this.signers.admin.address,
+        amount: ethers.utils.parseUnits("1", 19).toString(),
+        slippageBps: 100,
+        maxEdge: 5,
+        maxSplit: 20,
+        withCycle: false,
+      },
+    });
 
-  //   const txBytes = response.data.metamaskSwapTransaction.data as string;
-  //   const tx = await this.signers.admin.sendTransaction({
-  //     to: config.RouteProxy,
-  //     from: this.signers.admin.address,
-  //     gasLimit: 100000,
-  //     data: txBytes,
-  //     value: ethers.utils.parseUnits("1", 16),
+    let best: BigNumber = BigNumber.from(0);
+    for (const singleDexResult of response.data.singleDexes) {
+      if (best.lt(singleDexResult.expectedAmountOut)) {
+        best = BigNumber.from(singleDexResult.expectedAmountOut);
+      }
+    }
 
-  //     // to?: string,
-  //     // from?: string,
-  //     // nonce?: BigNumberish,
-
-  //     // gasLimit?: BigNumberish,
-  //     // gasPrice?: BigNumberish,
-
-  //     // data?: BytesLike,
-  //     // value?: BigNumberish,
-  //     // chainId?: number
-
-  //     // type?: number;
-  //     // accessList?: AccessListish;
-
-  //     // maxPriorityFeePerGas?: BigNumberish;
-  //     // maxFeePerGas?: BigNumberish;
-
-  //     // customData?: Record<string, any>;
-  //     // ccipReadEnabled?: boolean;
-  //   })
-  //   logger.log(tx)
-
-  //   const receipt = await tx.wait()
-  //   logger.log(receipt)
-  //   // await this.routeProxy
-  //   //   .connect(this.signers.admin)
-  //   //   .getMultiHopSingleSwapOut(config.coin, ethers.utils.parseUnits("1", 18), config.Tokens.OSMO.address, [
-  //   //     {
-  //   //       fromToken: config.coin,
-  //   //       amountIn: ethers.utils.parseUnits("1", 18),
-  //   //       toToken: config.Tokens.OSMO.address,
-  //   //       to: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-  //   //       pool: "0x60057bEF562A9FA391f5631baeC630a1c230878B",
-  //   //       adapter: config.UniV2Adapter,
-  //   //       poolEdition: 0,
-  //   //     },
-  //   //   ]),
-  // });
+    const txBytes = response.data.metamaskSwapTransaction.data as string;
+    const amountOutHex = await this.signers.admin.call({
+      to: config.RouteProxy,
+      from: this.signers.admin.address,
+      gasLimit: 50000000,
+      data: txBytes,
+      value: ethers.utils.parseUnits("1", 19),
+    });
+    logger.log("Best single dex result: ", best.toString());
+    logger.log("Aggregate result:       ", parseInt(amountOutHex));
+  });
 
   // it("CurveV1", async function () {
   //   logger.log("UnitGetMultiHopSingleSwapOut:CurveAdapter: ren Curve amWBTC to renBTC");
