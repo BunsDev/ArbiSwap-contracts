@@ -1,7 +1,7 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
-import type { BalancerAdapter, CurveAdapter, UniV2Adapter, UniV3Adapter } from "../src/types/SmartRoute/adapter/index";
-import type { RouteProxy } from "../src/types/SmartRoute/proxies/index";
+import type { BalancerAdapter, CurveAdapter, UniV2Adapter, UniV3Adapter } from "../src/types/SmartRoute/adapter";
+import type { RouteProxy } from "../src/types/SmartRoute/proxies";
 import type {
   BalancerViewer,
   CurveCryptoViewer,
@@ -9,7 +9,7 @@ import type {
   TokenViewer,
   UniV2Viewer,
   UniV3Viewer,
-} from "../src/types/Viewer/index";
+} from "../src/types/Viewer";
 
 type Fixture<T> = () => Promise<T>;
 

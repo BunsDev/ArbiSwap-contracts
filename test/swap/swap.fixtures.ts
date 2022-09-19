@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 
-import { config } from "../../config/matic_config";
+import { config } from "../../config/evmos_config";
 import type { RouteProxy } from "../../src/types/SmartRoute/proxies/RouteProxy";
 import type { RouteProxy__factory } from "../../src/types/factories/SmartRoute/proxies/index";
 import { logger } from "../logger";

@@ -2,7 +2,7 @@ import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
-import { config } from "../../config/aurora_config";
+import { config } from "../../config/evmos_config";
 import type { Approve } from "../../src/types/SmartRoute/Approve";
 import type { ApproveProxy } from "../../src/types/SmartRoute/ApproveProxy.sol";
 import type { RouteProxy } from "../../src/types/SmartRoute/proxies";

@@ -1,5 +1,5 @@
 const evmos_config = {
-  coin: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  coin: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
   //WETH(WEVMOS)
   WETH: "0xd4949664cd82660aae99bedc034a0dea8a0bd517",
   //lending address provider
@@ -65,7 +65,7 @@ const evmos_config = {
   TokenViewer: "0xEfbA9791DfDf14844a3Cb2b31F28365F8123193a",
 
   //Proxy
-  RouteProxy: "0x11D910B51E862788789DE7E30136e8463Bb32004",
+  RouteProxy: "0xC926D433BD6B51E1ACcD7c1F1e7ce3101c03D3A0",
   ApproveProxy: "0x19f6f1e909A8F9E3d31C2eFcb5274f8f86226eb8",
 
   //Tokens
