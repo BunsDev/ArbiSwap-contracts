@@ -52,7 +52,7 @@ contract UniV2Adapter is IRouterAdapter {
 
         uint32 fee = IUniswapV2Viewer(uni2Viewer).fee(pool);
 
-        if (fee % 10 == 0) {
+        if (fee % 1000 == 0) {
             uint256 amountInWithFee = amountIn.mul(1000 - fee / 1000);
             uint256 numerator = amountInWithFee.mul(reserveOutput);
             uint256 denominator = reserveInput.mul(1000).add(amountInWithFee);
