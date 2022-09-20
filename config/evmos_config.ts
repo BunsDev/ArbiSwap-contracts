@@ -5,7 +5,7 @@ const evmos_config = {
   //lending address provider
   AAVEV2LendingAddressProvider: "0x0000000000000000000000000000000000000000",
 
-  //flashloan from saddle finance(trisolaris usdt/usdc/frax)
+  //flashloan from saddle finance(saddle mad usdt 0x7ff4a56b32ee13d7d4d405887e0ea37d61ed919e / mad usdc 0x51e44FfaD5C2B122C8b635671FCC8139dc636E82 /frax)
   FlashloanSwap: "0x21d4365834B7c61447e142ef6bCf01136cBD01c6",
 
   //UniV2Factory
@@ -42,24 +42,24 @@ const evmos_config = {
   //Should deploy contracts below
   //Approve
   Approve: "0x1D29C0819A6Bc066C859F6CDB05A0C7a4E00B9dd",
-
+  err: "0xc75406f11cF2E638830f1f2822BC3ff12cAA0186",
   //Adapter
   UniV2Adapter: "0xcC59a96DDBd08bDA63163b0C4046326796cBE56c",
   UniV3Adapter: "0x0000000000000000000000000000000000000000",
   // for curve
   CurveAdapter: "0x0000000000000000000000000000000000000000",
   // for kinesis swap
-  CurveNoRegistrysAdapter: "0x10A4F4A39865b2c355Fb72460Cb3874e161122ac",
+  StableSwapNoRegistryAdapter: "0xAA6c5F0B52D66bFBde1A0C8dcB478D9e50A53190",
   // for saddle swap fork()
-  StableSwapAdapter: "0x9711577F5f7F7162B8086567Ed7b0CcF58A68876",
+  StableSwapAdapter: "0xEcD4f5288971886cB29899A278c7A36e823D9025",
   BalancerAdapter: "0x0000000000000000000000000000000000000000",
 
   //Viewer
   UniV2Viewer: "0xE5406aeb878a341656E8c6A2E16d0b07728F5977",
   UniV3Viewer: "0x0000000000000000000000000000000000000000",
   CurveViewer: "0x0000000000000000000000000000000000000000",
-  CurveNoRegistryViewer: "0x33dF7290ED46B714D45Fa21AF857799dA6eeb2b0",
-  StableSwapViewer: "0x8c41C6BafbF61F6F749Ef9D5CfF2d18399e2539a",
+  CurveNoRegistryViewer: "0x0000000000000000000000000000000000000000",
+  StableSwapViewer: "0x7B0A49EcDE59e2943489bA8Bfb285c3b31611423",
   CurveCryptoViewer: "0x0000000000000000000000000000000000000000",
   BalancerViewer: "0x0000000000000000000000000000000000000000",
   TokenViewer: "0xEfbA9791DfDf14844a3Cb2b31F28365F8123193a",
@@ -131,9 +131,8 @@ const evmos_config = {
     "0x21d4365834B7c61447e142ef6bCf01136cBD01c6",
     "0x81272C5c573919eF0C719D6d63317a4629F161da",
   ],
-  // Only base pools(curve)
-  KinesisCurvePools: ["0x49b97224655AaD13832296b8f6185231AFB8aaCc", "0xbBD5a7AE45a484BD8dAbdfeeeb33E4b859D2c95C"],
-  KinesisCurvePoolsNum: [3, 3],
+  // Only base pools(saddle)
+  KinesisSaddlePools: ["0x49b97224655AaD13832296b8f6185231AFB8aaCc", "0xbBD5a7AE45a484BD8dAbdfeeeb33E4b859D2c95C"],
   UniswapV3Pools: [],
 };
 

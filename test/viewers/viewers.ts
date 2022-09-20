@@ -25,18 +25,26 @@ describe("Unit tests", function () {
 
   describe("Viewers", function () {
     beforeEach(async function () {
-      const { balancerViewer, curveViewer, curveCryptoViewer, uniV2Viewer, uniV3Viewer, tokenViewer } =
-        await this.loadFixture(deployViewersFixture);
+      const {
+        stableSwapViewer,
+        balancerViewer,
+        curveViewer,
+        curveCryptoViewer,
+        uniV2Viewer,
+        uniV3Viewer,
+        tokenViewer,
+      } = await this.loadFixture(deployViewersFixture);
       this.tokenViewer = tokenViewer;
       this.balancerViewer = balancerViewer;
       this.curveViewer = curveViewer;
       this.curveCryptoViewer = curveCryptoViewer;
       this.uniV2Viewer = uniV2Viewer;
       this.uniV3Viewer = uniV3Viewer;
+      this.stableSwapViewer = stableSwapViewer;
     });
 
     // fetchBalancerViewer();
-    // fetchCurveViewer();
+    fetchCurveViewer();
     // fetchCurveCryptoViewer();
     // fetchUniV2Viewer();
     // fetchUniV3Viewer();

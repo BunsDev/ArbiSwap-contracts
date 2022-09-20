@@ -22,6 +22,6 @@ describe("Unit tests", function () {
       this.routeProxy = routeProxy;
     });
 
-    testUnitGetMultiHopSingleSwapOut();
+    // testUnitGetMultiHopSingleSwapOut();
   });
 });

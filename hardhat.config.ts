@@ -7,7 +7,8 @@ import { resolve } from "path";
 import { api_keys } from "./api_keys";
 import "./tasks/accounts";
 import "./tasks/deploy";
-import "./tasks/swap";
+
+// import "./tasks/swap";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });

@@ -35,6 +35,8 @@ contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
 
     // ============ Storage ============
 
+    uint256 constant _DEFAULT_WO_FEE_ = 999000; // 0.1% trading fee from output
+    uint256 constant _FEE_DENOMINATOR_ = 1000000;
     address constant _ETH_ADDRESS_ = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address payable public immutable _WETH_ADDRESS_;
     address public immutable _APPROVE_PROXY_;
@@ -42,7 +44,14 @@ contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
 
     // ============ Events ============
 
-    event OrderHistory(address fromToken, address toToken, address sender, uint256 fromAmount, uint256 returnAmount);
+    event OrderHistory(
+        address fromToken,
+        address toToken,
+        address sender,
+        uint256 fromAmount,
+        uint256 returnAmount,
+        uint256 deductedFee
+    );
 
     // ============ Modifiers ============
 
@@ -102,17 +111,25 @@ contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
             IWETH(_WETH_ADDRESS_).withdraw(amountIn);
         }
         outputs = _multiHopSingleSwap(pathInfos);
-        require(outputs[outputs.length - 1] >= minReturnAmount, "out of slippage");
+        uint256 realOutput = outputs[outputs.length - 1].mul(_DEFAULT_WO_FEE_).div(_FEE_DENOMINATOR_);
+        require(realOutput >= minReturnAmount, "out of slippage");
 
         if (isWETH[1] == 1) {
             require(toToken == _ETH_ADDRESS_, "Not valid toToken");
-            IWETH(_WETH_ADDRESS_).deposit{ value: outputs[outputs.length - 1] }();
-            IERC20(_WETH_ADDRESS_).safeTransfer(pathInfos[pathInfos.length - 1].to, outputs[outputs.length - 1]);
+            IWETH(_WETH_ADDRESS_).deposit{ value: realOutput }();
+            IERC20(_WETH_ADDRESS_).safeTransfer(pathInfos[pathInfos.length - 1].to, realOutput);
         } else {
-            IERC20(toToken).uniTransfer(pathInfos[pathInfos.length - 1].to, outputs[outputs.length - 1]);
+            IERC20(toToken).uniTransfer(pathInfos[pathInfos.length - 1].to, realOutput);
         }
 
-        emit OrderHistory(fromToken, toToken, msg.sender, amountIn, outputs[outputs.length - 1]);
+        emit OrderHistory(
+            fromToken,
+            toToken,
+            msg.sender,
+            amountIn,
+            realOutput,
+            outputs[outputs.length - 1] - realOutput
+        );
     }
 
     /**
@@ -137,10 +154,7 @@ contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
                 pathInfos[pathInfos.length - 1].toToken == toToken,
             "not same input"
         );
-        console.log(pathInfos[0].fromToken);
-        console.log(pathInfos[0].toToken);
-        console.log(pathInfos[0].to);
-        console.log(pathInfos[0].amountIn);
+
         outputs = _calcMultiHopSingleSwap(pathInfos);
     }
 
@@ -184,16 +198,19 @@ contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
             IWETH(_WETH_ADDRESS_).withdraw(amountIn);
         }
         output = _singleHopMultiSwap(weightPathInfo);
-        require(output >= minReturnAmount, "out of slippage");
+
+        uint256 realOutput = output.mul(_DEFAULT_WO_FEE_).div(_FEE_DENOMINATOR_);
+        require(realOutput >= minReturnAmount, "out of slippage");
+
         if (isWETH[1] == 1) {
             require(toToken == _ETH_ADDRESS_, "Not valid toToken");
-            IWETH(_WETH_ADDRESS_).deposit{ value: output }();
-            IERC20(_WETH_ADDRESS_).safeTransfer(weightPathInfo.to, output);
+            IWETH(_WETH_ADDRESS_).deposit{ value: realOutput }();
+            IERC20(_WETH_ADDRESS_).safeTransfer(weightPathInfo.to, realOutput);
         } else {
-            IERC20(toToken).uniTransfer(weightPathInfo.to, output);
+            IERC20(toToken).uniTransfer(weightPathInfo.to, realOutput);
         }
 
-        emit OrderHistory(fromToken, toToken, msg.sender, amountIn, output);
+        emit OrderHistory(fromToken, toToken, msg.sender, amountIn, realOutput, output - realOutput);
     }
 
     /**
@@ -262,20 +279,25 @@ contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
             IWETH(_WETH_ADDRESS_).withdraw(amountIn);
         }
         outputs = _multiHopMultiSwap(weightPathInfos);
+        uint256 realOutput = outputs[outputs.length - 1].mul(_DEFAULT_WO_FEE_).div(_FEE_DENOMINATOR_);
 
-        require(outputs[outputs.length - 1] >= minReturnAmount, "out of slippage");
+        require(realOutput >= minReturnAmount, "out of slippage");
         if (isWETH[1] == 1) {
             require(toToken == _ETH_ADDRESS_, "Not valid toToken");
-            IWETH(_WETH_ADDRESS_).deposit{ value: outputs[outputs.length - 1] }();
-            IERC20(_WETH_ADDRESS_).safeTransfer(
-                weightPathInfos[weightPathInfos.length - 1].to,
-                outputs[outputs.length - 1]
-            );
+            IWETH(_WETH_ADDRESS_).deposit{ value: realOutput }();
+            IERC20(_WETH_ADDRESS_).safeTransfer(weightPathInfos[weightPathInfos.length - 1].to, realOutput);
         } else {
-            IERC20(toToken).uniTransfer(weightPathInfos[weightPathInfos.length - 1].to, outputs[outputs.length - 1]);
+            IERC20(toToken).uniTransfer(weightPathInfos[weightPathInfos.length - 1].to, realOutput);
         }
 
-        emit OrderHistory(fromToken, toToken, msg.sender, amountIn, outputs[outputs.length - 1]);
+        emit OrderHistory(
+            fromToken,
+            toToken,
+            msg.sender,
+            amountIn,
+            realOutput,
+            outputs[outputs.length - 1] - realOutput
+        );
     }
 
     /**
@@ -343,16 +365,18 @@ contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
             IWETH(_WETH_ADDRESS_).withdraw(amountIn);
         }
         output = _linearSplitMultiHopMultiSwap(linearWeightPathInfo);
-        require(output >= minReturnAmount, "out of slippage");
+
+        uint256 realOutput = output.mul(_DEFAULT_WO_FEE_).div(_FEE_DENOMINATOR_);
+        require(realOutput >= minReturnAmount, "out of slippage");
 
         if (isWETH[1] == 1) {
             require(toToken == _ETH_ADDRESS_, "Not valid toToken");
-            IWETH(_WETH_ADDRESS_).deposit{ value: output }();
-            IERC20(_WETH_ADDRESS_).safeTransfer(linearWeightPathInfo.to, output);
+            IWETH(_WETH_ADDRESS_).deposit{ value: realOutput }();
+            IERC20(_WETH_ADDRESS_).safeTransfer(linearWeightPathInfo.to, realOutput);
         } else {
-            IERC20(toToken).uniTransfer(linearWeightPathInfo.to, output);
+            IERC20(toToken).uniTransfer(linearWeightPathInfo.to, realOutput);
         }
-        emit OrderHistory(fromToken, toToken, msg.sender, amountIn, output);
+        emit OrderHistory(fromToken, toToken, msg.sender, amountIn, realOutput, output - realOutput);
     }
 
     /**
@@ -428,14 +452,16 @@ contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
             IWETH(_WETH_ADDRESS_).withdraw(amountIn);
         }
         output = _linearSplitMultiHopMultiSwap(linearWeightPathInfo);
-        require(output >= minReturnAmount, "out of slippage");
+
+        uint256 realOutput = output.mul(_DEFAULT_WO_FEE_).div(_FEE_DENOMINATOR_);
+        require(realOutput >= minReturnAmount, "out of slippage");
 
         if (isWETH[1] == 1) {
             require(toToken == _ETH_ADDRESS_, "Not valid toToken");
-            IWETH(_WETH_ADDRESS_).deposit{ value: output }();
-            IERC20(_WETH_ADDRESS_).safeTransfer(linearWeightPathInfo.to, output);
+            IWETH(_WETH_ADDRESS_).deposit{ value: realOutput }();
+            IERC20(_WETH_ADDRESS_).safeTransfer(linearWeightPathInfo.to, realOutput);
         } else {
-            IERC20(toToken).uniTransfer(linearWeightPathInfo.to, output);
+            IERC20(toToken).uniTransfer(linearWeightPathInfo.to, realOutput);
         }
 
         // we should execute multihopsingleswap array only to prevent errors from overusing the same pool before updating states
@@ -451,25 +477,23 @@ contract RouteProxy is IFlashLoanReceiver, Withdrawable, ReentrancyGuard {
                 outputs[outputs.length - 1] >
                 flashDes[i].amountIn.mul(10000 + IFlashLoan(LENDING_POOL).flashLoanFeeBPS()).div(10000)
             ) {
+                uint256 delta = IERC20(flashDes[i].asset).uniBalanceOf(address(this));
                 IFlashLoan(LENDING_POOL).flashLoan(
                     address(this),
                     flashDes[i].asset,
                     flashDes[i].amountIn,
                     abi.encode(flashDes[i].swaps)
                 );
-
+                delta = IERC20(flashDes[i].asset).uniBalanceOf(address(this)) - delta;
+                delta = delta.mul(_DEFAULT_WO_FEE_).div(_FEE_DENOMINATOR_);
                 if (toToken == flashDes[i].asset) {
-                    output += IERC20(flashDes[i].asset).uniBalanceOf(address(this));
+                    realOutput += delta;
                 }
 
-                IERC20(flashDes[i].asset).uniTransfer(
-                    msg.sender,
-                    IERC20(flashDes[i].asset).uniBalanceOf(address(this))
-                );
+                IERC20(flashDes[i].asset).uniTransfer(msg.sender, delta);
             }
         }
-
-        emit OrderHistory(fromToken, toToken, msg.sender, amountIn, output);
+        emit OrderHistory(fromToken, toToken, msg.sender, amountIn, realOutput, output - realOutput);
     }
 
     /**

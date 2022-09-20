@@ -18,17 +18,24 @@ describe("Unit tests", function () {
 
   describe("Adapters", function () {
     beforeEach(async function () {
-      const { balancerAdapter, curveAdapter, uniV2Adapter, uniV3Adapter } = await this.loadFixture(
-        deployAdaptersFixture,
-      );
+      const {
+        balancerAdapter,
+        curveAdapter,
+        uniV2Adapter,
+        uniV3Adapter,
+        stableSwapNoRegistryAdapter,
+        stableSwapAdapter,
+      } = await this.loadFixture(deployAdaptersFixture);
       this.balancerAdapter = balancerAdapter;
       this.curveAdapter = curveAdapter;
       this.uniV2Adapter = uniV2Adapter;
       this.uniV3Adapter = uniV3Adapter;
+      this.stableSwapNoRegistryAdapter = stableSwapNoRegistryAdapter;
+      this.stableSwapAdapter = stableSwapAdapter;
     });
 
     // quoteBalancerAdapter();
-    // quoteCurveAdapter();
+    quoteCurveAdapter();
     // quoteUniV2Adapter();
     // quoteUniV3Adapter();
   });

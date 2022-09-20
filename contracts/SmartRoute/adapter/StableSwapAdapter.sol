@@ -20,8 +20,8 @@ contract StableSwapAdapter is IRouterAdapter {
     address public immutable _WETH_ADDRESS_;
 
     constructor(address _registry, address __WETH_ADDRESS_) {
-        _WETH_ADDRESS_ = __WETH_ADDRESS_;
         registry = _registry;
+        _WETH_ADDRESS_ = __WETH_ADDRESS_;
     }
 
     // MetaSwap is a modified version of Swap that allows Swap's LP token to be utilized in pooling with other tokens.
@@ -37,7 +37,7 @@ contract StableSwapAdapter is IRouterAdapter {
         ISwap stableSwap = ISwap(pool);
         uint8 i;
         uint8 j;
-        address baseSwap = IPoolRegistry(pool).getPoolData(pool).basePoolAddress;
+        address baseSwap = IPoolRegistry(registry).getPoolData(pool).basePoolAddress;
         if (baseSwap != address(0)) {
             try stableSwap.getTokenIndex(fromToken) returns (uint8 fromIndex) {
                 i = fromIndex;
@@ -70,7 +70,7 @@ contract StableSwapAdapter is IRouterAdapter {
         ISwap stableSwap = ISwap(pool);
         uint8 i;
         uint8 j;
-        address baseSwap = IPoolRegistry(pool).getPoolData(pool).basePoolAddress;
+        address baseSwap = IPoolRegistry(registry).getPoolData(pool).basePoolAddress;
 
         if (baseSwap != address(0)) {
             try stableSwap.getTokenIndex(fromToken) returns (uint8 fromIndex) {
