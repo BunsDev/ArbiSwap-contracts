@@ -6,16 +6,16 @@ import { config } from "../../config/evmos_config";
 import type {
   BalancerAdapter,
   CurveAdapter,
-  CurveNoRegistryAdapter,
   StableSwapAdapter,
+  StableSwapNoRegistryAdapter,
   UniV2Adapter,
   UniV3Adapter,
 } from "../../src/types/SmartRoute/adapter/index";
 import type {
   BalancerAdapter__factory,
   CurveAdapter__factory,
-  CurveNoRegistryAdapter__factory,
   StableSwapAdapter__factory,
+  StableSwapNoRegistryAdapter__factory,
   UniV2Adapter__factory,
   UniV3Adapter__factory,
 } from "../../src/types/factories/SmartRoute/adapter/index";
@@ -46,34 +46,32 @@ task("deploy:Adapters").setAction(async function (taskArguments: TaskArguments, 
   // await curveAdapter.deployed();
   // console.log("CurveAdapter deployed to: ", curveAdapter.address);
 
-  // const curveNoRegistryAdapterFactory: CurveNoRegistryAdapter__factory = <CurveNoRegistryAdapter__factory>(
-  //   await ethers.getContractFactory("CurveNoRegistryAdapter")
-  // );
-  // const curveNoRegistryAdapter: CurveNoRegistryAdapter = <CurveNoRegistryAdapter>(
-  //   await curveNoRegistryAdapterFactory
-  //     .connect(signers[0])
-  //     .deploy(config.KinesisCurvePools, config.KinesisCurvePoolsNum)
-  // );
-  // await curveNoRegistryAdapter.deployed();
-  // console.log("CurveNoRegistryAdapter deployed to: ", curveNoRegistryAdapter.address);
+  const stableSwapNoRegistryAdapterFactory: StableSwapNoRegistryAdapter__factory = <
+    StableSwapNoRegistryAdapter__factory
+  >await ethers.getContractFactory("StableSwapNoRegistryAdapter");
+  const stableSwapNoRegistryAdapter: StableSwapNoRegistryAdapter = <StableSwapNoRegistryAdapter>(
+    await stableSwapNoRegistryAdapterFactory.connect(signers[0]).deploy()
+  );
+  await stableSwapNoRegistryAdapter.deployed();
+  console.log("StableSwapNoRegistryAdapter deployed to: ", stableSwapNoRegistryAdapter.address);
 
   // const stableSwapAdapterFactory: StableSwapAdapter__factory = <StableSwapAdapter__factory>(
   //   await ethers.getContractFactory("StableSwapAdapter")
   // );
   // const stableSwapAdapter: StableSwapAdapter = <StableSwapAdapter>(
-  //   await stableSwapAdapterFactory.connect(signers[0]).deploy(config.WETH, config.SaddleRegistry)
+  //   await stableSwapAdapterFactory.connect(signers[0]).deploy(config.SaddleRegistry, config.WETH)
   // );
   // await stableSwapAdapter.deployed();
   // console.log("StableSwapAdapter deployed to: ", stableSwapAdapter.address);
 
-  const uniV2AdapterFactory: UniV2Adapter__factory = <UniV2Adapter__factory>(
-    await ethers.getContractFactory("UniV2Adapter")
-  );
-  const uniV2Adapter: UniV2Adapter = <UniV2Adapter>(
-    await uniV2AdapterFactory.connect(signers[0]).deploy(config.UniV2Viewer)
-  );
-  await uniV2Adapter.deployed();
-  console.log("UniV2Adapter deployed to: ", uniV2Adapter.address);
+  // const uniV2AdapterFactory: UniV2Adapter__factory = <UniV2Adapter__factory>(
+  //   await ethers.getContractFactory("UniV2Adapter")
+  // );
+  // const uniV2Adapter: UniV2Adapter = <UniV2Adapter>(
+  //   await uniV2AdapterFactory.connect(signers[0]).deploy(config.UniV2Viewer)
+  // );
+  // await uniV2Adapter.deployed();
+  // console.log("UniV2Adapter deployed to: ", uniV2Adapter.address);
 
   // const uniV3AdapterFactory: UniV3Adapter__factory = <UniV3Adapter__factory>(
   //   await ethers.getContractFactory("UniV3Adapter")

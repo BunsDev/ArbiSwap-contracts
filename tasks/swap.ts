@@ -1,5 +1,6 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import axios from "axios";
+import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
@@ -23,27 +24,29 @@ import type {
 
 task("swap:test").setAction(async function (taskArguments: TaskArguments, { ethers }) {
   const signers: SignerWithAddress[] = await ethers.getSigners();
-
-  const response = await axios.post("http://0.0.0.0:1080/v1/quote/calculate", {
+  const input = ethers.utils.parseUnits("5", 18).toString();
+  const response = await axios.post(`${process.env.API_SERVER_ENDPOINT}/v1/quote/calculate`, {
     options: {
       tokenInAddr: config.coin,
-      tokenOutAddr: config.Tokens.OSMO.address,
+      tokenOutAddr: config.coin,
       from: signers[0].address,
-      amount: ethers.utils.parseUnits("1", 16).toString(),
-      slippageBps: 100,
-      maxEdge: 3,
+      amount: input,
+      slippageBps: 50,
+      maxEdge: 5,
       maxSplit: 5,
       withCycle: false,
     },
   });
-
-  const txBytes = response.data.metamaskSwapTransaction.data as string;
-  const tx = await signers[0].sendTransaction({
-    to: config.RouteProxy,
-    from: signers[0].address,
-    gasLimit: 10000000,
-    data: txBytes,
-    value: ethers.utils.parseUnits("1", 16),
-  });
-  console.log(await tx.wait());
+  console.log(BigNumber.from(response.expectedAmountOut).div(ethers.utils.parseUnits("1", 18)));
+  if (BigNumber.from(response.expectedAmountOut).gt(BigNumber.from(input).add(ethers.utils.parseUnits("1", 18)))) {
+    const txBytes = response.data.metamaskSwapTransaction.data as string;
+    const tx = await signers[0].sendTransaction({
+      to: config.RouteProxy,
+      from: signers[0].address,
+      gasLimit: 10000000,
+      data: txBytes,
+      value: input,
+    });
+    console.log(await tx.wait());
+  }
 });

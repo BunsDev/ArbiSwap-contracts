@@ -1,10 +1,11 @@
 import { ethers } from "hardhat";
 
-import { config } from "../../config/matic_config";
+import { config } from "../../config/evmos_config";
 import type {
   BalancerViewer,
   CurveCryptoViewer,
   CurveViewer,
+  StableSwapViewer,
   TokenViewer,
   UniV2Viewer,
   UniV3Viewer,
@@ -13,6 +14,7 @@ import type {
   BalancerViewer__factory,
   CurveCryptoViewer__factory,
   CurveViewer__factory,
+  StableSwapViewer__factory,
   TokenViewer__factory,
   UniV2Viewer__factory,
   UniV3Viewer__factory,
@@ -25,6 +27,7 @@ export async function deployViewersFixture(): Promise<{
   curveCryptoViewer: CurveCryptoViewer;
   uniV2Viewer: UniV2Viewer;
   uniV3Viewer: UniV3Viewer;
+  stableSwapViewer: StableSwapViewer;
   tokenViewer: TokenViewer;
 }> {
   const balancerViewerFactory: BalancerViewer__factory = <BalancerViewer__factory>(
@@ -56,5 +59,19 @@ export async function deployViewersFixture(): Promise<{
   const tokenViewer: TokenViewer = <TokenViewer>tokenViewerFactory.attach(config.TokenViewer);
   logger.log("TokenViewer", "using contract", config.TokenViewer);
 
-  return { balancerViewer, curveViewer, curveCryptoViewer, uniV2Viewer, uniV3Viewer, tokenViewer };
+  const stableSwapViewerFactory: StableSwapViewer__factory = <StableSwapViewer__factory>(
+    await ethers.getContractFactory("StableSwapViewer")
+  );
+  const stableSwapViewer: StableSwapViewer = <StableSwapViewer>stableSwapViewerFactory.attach(config.StableSwapViewer);
+  logger.log("StableSwapViewer", "using contract", config.StableSwapViewer);
+
+  return {
+    balancerViewer,
+    curveViewer,
+    curveCryptoViewer,
+    uniV2Viewer,
+    uniV3Viewer,
+    stableSwapViewer,
+    tokenViewer,
+  };
 }

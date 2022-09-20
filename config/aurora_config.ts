@@ -45,7 +45,7 @@ const aurora_config = {
   // for curve
   CurveAdapter: "0xab98dbd0a6ba9a110a207263af1ff4b538584b6a",
   // for roseswap
-  CurveNoRegistryAdapter: "0x107690e7827b9511969aB2F2587C82b33cA9483F",
+  StableSwapNoRegistryAdapter: "0x107690e7827b9511969aB2F2587C82b33cA9483F",
   // for saddle swap fork()
   StableSwapAdapter: "0x8C34A04171DCf88F95d55403B3b411FfB563372d",
   BalancerAdapter: "0x0000000000000000000000000000000000000000",

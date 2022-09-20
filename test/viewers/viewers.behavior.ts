@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-import { config } from "../../config/matic_config";
+import { config } from "../../config/evmos_config";
 import { logger } from "../logger";
 
 export function fetchTokenViewer(): void {
@@ -21,25 +21,14 @@ export function fetchUniV3Viewer(): void {
 }
 
 export function fetchCurveViewer(): void {
-  it("CurveViewer fetch pool info of amWBTC-renBTC", async function () {
-    logger.log("CurveViewer: ren Curve");
-    logger.log(
-      await this.curveViewer.connect(this.signers.admin).getPoolInfo("0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67"),
-    );
+  it("CurveNoRegistryViewer fetch pool info of amWBTC-renBTC", async function () {
+    logger.log("CurveViewer: Saddle pool");
+    logger.log(await this.stableSwapViewer.connect(this.signers.admin).getPoolInfo(config.SaddlePools[0]));
   });
 
-  it("CurveViewer fetch pool info of amDAI-amUSDT", async function () {
-    logger.log("CurveViewer: aave USD Curve");
-    logger.log(
-      await this.curveViewer.connect(this.signers.admin).getPoolInfo("0x445FE580eF8d70FF569aB36e80c647af338db351"),
-    );
-  });
-
-  it("CurveViewer fetch pool info of axlUSDC-USDC", async function () {
-    logger.log("CurveViewer: USD Factory Curve");
-    logger.log(
-      await this.curveViewer.connect(this.signers.admin).getPoolInfo("0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67"),
-    );
+  it("StableSwapViewer fetch pool info of Kinesis 3pool", async function () {
+    logger.log("CurveViewer: Kinesis Curve");
+    logger.log(await this.stableSwapViewer.connect(this.signers.admin).getPoolInfo(config.KinesisSaddlePools[0]));
   });
 }
 
@@ -58,7 +47,7 @@ export function fetchCurveCryptoViewer(): void {
     logger.log(
       await this.curveCryptoViewer
         .connect(this.signers.admin)
-        .getPoolInfo("0xFb6FE7802bA9290ef8b00CA16Af4Bc26eb663a28"),
+        .getPoolInfo("0x Fb6FE7802bA9290ef8b00CA16Af4Bc26eb663a28"),
     );
   });
 }

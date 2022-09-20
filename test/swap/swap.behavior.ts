@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BigNumber, BigNumberish } from "ethers";
+import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 
 import { config } from "../../config/evmos_config";
@@ -82,7 +82,7 @@ export function testUnitGetMultiHopSingleSwapOut(): void {
           ],
         },
         [],
-        21666,
+        1,
         "1700000000000",
         [0, 0],
         {
@@ -92,105 +92,87 @@ export function testUnitGetMultiHopSingleSwapOut(): void {
     );
   });
 
-  it("UniV2 - Run tx from quoteserver", async function () {
-    logger.log("Getting metamask tx");
-    const response = await axios.post("http://0.0.0.0:1080/v1/quote/calculate", {
-      options: {
-        tokenInAddr: config.coin,
-        tokenOutAddr: config.Tokens.OSMO.address,
-        from: this.signers.admin.address,
-        amount: ethers.utils.parseUnits("1", 19).toString(),
-        slippageBps: 100,
-        maxEdge: 5,
-        maxSplit: 20,
-        withCycle: false,
-      },
-    });
+  // it("UniV2 - Run tx from quoteserver", async function () {
+  //   logger.log("Getting metamask tx");
+  //   const response = await axios.post(`${process.env.API_SERVER_ENDPOINT}/v1/quote/calculate`, {
+  //     options: {
+  //       tokenInAddr: config.coin,
+  //       tokenOutAddr: config.Tokens.OSMO.address,
+  //       from: this.signers.admin.address,
+  //       amount: ethers.utils.parseUnits("1", 19).toString(),
+  //       slippageBps: 100,
+  //       maxEdge: 5,
+  //       maxSplit: 20,
+  //       withCycle: false,
+  //     },
+  //   });
 
-    let best: BigNumber = BigNumber.from(0);
-    for (const singleDexResult of response.data.singleDexes) {
-      if (best.lt(singleDexResult.expectedAmountOut)) {
-        best = BigNumber.from(singleDexResult.expectedAmountOut);
-      }
-    }
+  //   let best: BigNumber = BigNumber.from(0);
+  //   for (const singleDexResult of response.data.singleDexes) {
+  //     if (best.lt(singleDexResult.expectedAmountOut)) {
+  //       best = BigNumber.from(singleDexResult.expectedAmountOut);
+  //     }
+  //   }
 
-    const txBytes = response.data.metamaskSwapTransaction.data as string;
-    const amountOutHex = await this.signers.admin.call({
-      to: config.RouteProxy,
-      from: this.signers.admin.address,
-      gasLimit: 50000000,
-      data: txBytes,
-      value: ethers.utils.parseUnits("1", 19),
-    });
-    logger.log("Best single dex result: ", best.toString());
-    logger.log("Aggregate result:       ", parseInt(amountOutHex));
+  //   const txBytes = response.data.metamaskSwapTransaction.data as string;
+  //   const amountOutHex = await this.signers.admin.call({
+  //     to: config.RouteProxy,
+  //     from: this.signers.admin.address,
+  //     gasLimit: 50000000,
+  //     data: txBytes,
+  //     value: ethers.utils.parseUnits("1", 19),
+  //   });
+  //   logger.log("Best single dex result: ", best.toString());
+  //   logger.log("Aggregate result:       ", parseInt(amountOutHex));
+  // });
+
+  it("StableSwapNoRegistry", async function () {
+    logger.log("UnitGetMultiHopSingleSwapOut:StableSwapAdapter: ren Curve USDC to USDT");
+    logger.log(
+      await this.routeProxy
+        .connect(this.signers.admin)
+        .getMultiHopSingleSwapOut(
+          config.Tokens.madUSDC.address,
+          ethers.utils.parseUnits("1", 18),
+          config.Tokens.madUSDT.address,
+          [
+            {
+              fromToken: config.Tokens.madUSDC.address,
+              amountIn: ethers.utils.parseUnits("1", 18),
+              toToken: config.Tokens.madUSDT.address,
+              to: "0x0000000000000000000000000000000000000000",
+              pool: config.KinesisSaddlePools[0],
+              adapter: config.StableSwapNoRegistryAdapter,
+              poolEdition: 1,
+            },
+          ],
+        ),
+    );
   });
 
-  // it("CurveV1", async function () {
-  //   logger.log("UnitGetMultiHopSingleSwapOut:CurveAdapter: ren Curve amWBTC to renBTC");
-  //   logger.log(
-  //     await this.routeProxy
-  //       .connect(this.signers.admin)
-  //       .getMultiHopSingleSwapOut(
-  //         config.Tokens.amWBTC.address,
-  //         ethers.utils.parseUnits("1", 18),
-  //         config.Tokens.renBTC.address,
-  //         [
-  //           {
-  //             fromToken: config.Tokens.amWBTC.address,
-  //             amountIn: ethers.utils.parseUnits("1", 18),
-  //             toToken: config.Tokens.renBTC.address,
-  //             to: "0x0000000000000000000000000000000000000000",
-  //             pool: "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67",
-  //             adapter: config.CurveAdapter,
-  //             poolEdition: 1,
-  //           },
-  //         ],
-  //       ),
-  //   );
-
-  //   logger.log("UnitGetMultiHopSingleSwapOut:CurveAdapter: aave USD Curve amDAI to amUSDT");
-  //   logger.log(
-  //     await this.routeProxy.connect(this.signers.admin).getMultiHopSingleSwapOut(
-  //       config.Tokens.amDAI.address,
-  //       ethers.utils.parseUnits("1", 18),
-  //       config.Tokens.amUSDT.address,
-
-  //       [
-  //         {
-  //           fromToken: config.Tokens.amDAI.address,
-  //           amountIn: ethers.utils.parseUnits("1", 18),
-  //           toToken: config.Tokens.amUSDT.address,
-  //           to: "0x0000000000000000000000000000000000000000",
-  //           pool: "0x445FE580eF8d70FF569aB36e80c647af338db351",
-  //           adapter: config.CurveAdapter,
-  //           poolEdition: 1,
-  //         },
-  //       ],
-  //     ),
-  //   );
-
-  //   logger.log("UnitGetMultiHopSingleSwapOut:CurveAdapter: USD Factory Curve axlUSDC to USDC");
-  //   logger.log(
-  //     await this.routeProxy.connect(this.signers.admin).getMultiHopSingleSwapOut(
-  //       config.Tokens.axlUSDC.address,
-  //       ethers.utils.parseUnits("1", 18),
-  //       config.Tokens.USDC.address,
-
-  //       [
-  //         {
-  //           fromToken: config.Tokens.axlUSDC.address,
-  //           amountIn: ethers.utils.parseUnits("1", 18),
-  //           toToken: config.Tokens.USDC.address,
-  //           to: "0x0000000000000000000000000000000000000000",
-  //           pool: "0xfBA3b7Bb043415035220b1c44FB4756434639392",
-  //           adapter: config.CurveAdapter,
-  //           poolEdition: 1,
-  //         },
-  //       ],
-  //     ),
-  //   );
-  // });
+  it("StableSwap", async function () {
+    logger.log("UnitGetMultiHopSingleSwapOut:StableSwapAdapter: ren Curve USDC to USDT");
+    logger.log(
+      await this.routeProxy
+        .connect(this.signers.admin)
+        .getMultiHopSingleSwapOut(
+          config.Tokens.madUSDC.address,
+          ethers.utils.parseUnits("1", 18),
+          config.Tokens.madUSDT.address,
+          [
+            {
+              fromToken: config.Tokens.madUSDC.address,
+              amountIn: ethers.utils.parseUnits("1", 18),
+              toToken: config.Tokens.madUSDT.address,
+              to: "0x0000000000000000000000000000000000000000",
+              pool: config.SaddlePools[0],
+              adapter: config.StableSwapAdapter,
+              poolEdition: 1,
+            },
+          ],
+        ),
+    );
+  });
 
   // it("CurveV2", async function () {
   //   logger.log("UnitGetMultiHopSingleSwapOut:CurveAdapter: Crypto Factory Curve stMatic to Matic");

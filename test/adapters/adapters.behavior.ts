@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-import { config } from "../../config/matic_config";
+import { config } from "../../config/evmos_config";
 import { logger } from "../logger";
 
 // export function quoteUniV3Adapter(): void {
@@ -21,20 +21,35 @@ import { logger } from "../logger";
 // }
 
 export function quoteCurveAdapter(): void {
-  it("CurveAdapter getAmountOut DAI to USDT", async function () {
-    logger.log("CurveAdapter: USD Curve DAI to USDT");
+  it("CurveAdapter getAmountOut madDAI to madUSDC", async function () {
+    logger.log("StableSwapAdapter: mad Curve madDAI to madUSDC");
     logger.log(
-      await this.curveAdapter
+      await this.stableSwapAdapter
         .connect(this.signers.admin)
         .getAmountOut(
-          config.Tokens.amDAI.address,
-          ethers.utils.parseUnits("1000", 18),
-          config.Tokens.amUSDT.address,
-          "0x445FE580eF8d70FF569aB36e80c647af338db351",
+          config.Tokens.madDAI.address,
+          ethers.utils.parseUnits("1", 18),
+          config.Tokens.madUSDC.address,
+          config.SaddlePools[0],
+        ),
+    );
+  });
+
+  it("CurveAdapter getAmountOut madDAI to madUSDC", async function () {
+    logger.log("StableSwapAdapter: mad Curve madDAI to madUSDC");
+    logger.log(
+      await this.stableSwapNoRegistryAdapter
+        .connect(this.signers.admin)
+        .getAmountOut(
+          config.Tokens.madDAI.address,
+          ethers.utils.parseUnits("1", 18),
+          config.Tokens.madUSDC.address,
+          config.SaddlePools[0],
         ),
     );
   });
 }
+
 export function quoteBalancerAdapter(): void {
   it("BalancerAdapter getAmountOut WMATIC to USDC", async function () {
     logger.log("BalancerAdapter:Balancer");
