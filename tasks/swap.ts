@@ -33,13 +33,15 @@ task("swap:test").setAction(async function (taskArguments: TaskArguments, { ethe
       amount: input,
       slippageBps: 50,
       maxEdge: 5,
-      maxSplit: 5,
+      maxSplit: 10,
       withCycle: false,
     },
   });
-  console.log(BigNumber.from(response.expectedAmountOut).div(ethers.utils.parseUnits("1", 18)));
-  if (BigNumber.from(response.expectedAmountOut).gt(BigNumber.from(input).add(ethers.utils.parseUnits("1", 18)))) {
-    const txBytes = response.data.metamaskSwapTransaction.data as string;
+  const txx = response.data.metamaskSwapTransaction;
+  const expectedAmountOut = BigNumber.from(response.data.dexAgg.expectedAmountOut);
+  console.log(expectedAmountOut.div(ethers.utils.parseUnits("1", 15)).toString());
+  if (expectedAmountOut.gt(BigNumber.from(input).add(ethers.utils.parseUnits("5", 17)))) {
+    const txBytes = txx.data as string;
     const tx = await signers[0].sendTransaction({
       to: config.RouteProxy,
       from: signers[0].address,
