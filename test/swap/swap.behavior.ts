@@ -94,7 +94,7 @@ export function testUnitGetMultiHopSingleSwapOut(): void {
 
   // it("UniV2 - Run tx from quoteserver", async function () {
   //   logger.log("Getting metamask tx");
-  //   const response = await axios.post("https://api.eisenfinance.com/v1/quote/calculate", {
+  //   const response = await axios.post(`${process.env.API_SERVER_ENDPOINT}/v1/quote/calculate`, {
   //     options: {
   //       tokenInAddr: config.coin,
   //       tokenOutAddr: config.Tokens.OSMO.address,
