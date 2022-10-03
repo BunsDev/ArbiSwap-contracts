@@ -33,5 +33,6 @@ task("deploy:Route").setAction(async function (taskArguments: TaskArguments, { e
   );
   await RouteProxy.deployed();
   console.log("RouteProxy deployed to: ", RouteProxy.address);
-  await approve.init(signers[0].address, RouteProxy.address);
+  await approve.init(signers[0].address, approveProxy.address);
+  await approveProxy.init(signers[0].address, [RouteProxy.address]);
 });

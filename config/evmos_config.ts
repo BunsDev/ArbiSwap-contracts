@@ -65,8 +65,8 @@ const evmos_config = {
   TokenViewer: "0xEfbA9791DfDf14844a3Cb2b31F28365F8123193a",
 
   //Proxy
-  RouteProxy: "0xC926D433BD6B51E1ACcD7c1F1e7ce3101c03D3A0",
-  ApproveProxy: "0x19f6f1e909A8F9E3d31C2eFcb5274f8f86226eb8",
+  RouteProxy: "0xc553acAC773b2eC504e578c7eB4d8f1261E32e21",
+  ApproveProxy: "0xCb654761E680e7f5cA72c42EB745Ba8c557B7Cd7",
 
   //Tokens
   // WETH is eth, xxWETH is wEvmos(we don't have to calculate in assumption; xxWETH=ooWETH)
